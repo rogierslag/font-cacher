@@ -7,12 +7,11 @@ const MAX_CSS_ENTRIES = process.env.MAX_CSS_ENTRIES || 10000;
 const {getFromCache, addToCache, stats} = require('./cache')('css', MAX_CSS_ENTRIES);
 
 if (process.env.LOG_STATS) {
-	setInterval(() => console.log('css', stats()), 30000);
+	setInterval(() => console.log('css', stats()), 300000);
 }
 
 function respondWithCache(ctx, cached) {
 	Object.entries(cached.headers).forEach(e => ctx.set(e[0], e[1]));
-	ctx.status = 200;
 	ctx.body = cached.body;
 }
 
@@ -35,7 +34,6 @@ function key(querystring, userAgent) {
 
 module.exports = async function css(ctx, log) {
 	const cacheKey = key(ctx.querystring, ctx.req.headers['user-agent']);
-	console.log(cacheKey);
 
 	const cached = getFromCache(cacheKey);
 	if (cached) {
@@ -65,11 +63,14 @@ module.exports = async function css(ctx, log) {
 		'Cache-Control' : result.headers.get('cache-control'),
 		'Date' : result.headers.get('date'),
 		'Expires' : result.headers.get('expires'),
-		'Last-Modified' : result.headers.get('last-modified'),
 		'timing-allow-origin' : '*',
 		'access-control-allow-origin' : '*',
 		'Status' : '200',
 	};
+	if (result.headers.get('last-modified')) {
+		// This is not always provided from upstream
+		headersToCache['Last-Modified'] = result.headers.get('last-modified');
+	}
 
 	respondWithCache(ctx, addToCache(cacheKey, headersToCache, bodyToCache));
 };

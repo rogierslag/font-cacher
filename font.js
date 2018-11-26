@@ -6,11 +6,12 @@ const MAX_FONT_ENTRIES = process.env.MAX_FONT_ENTRIES || 1000;
 const {getFromCache, addToCache, stats} = require('./cache')('font', MAX_FONT_ENTRIES);
 
 if (process.env.LOG_STATS) {
-	setInterval(() => console.log('font', stats()), 30000);
+	setInterval(() => console.log('font', stats()), 300000);
 }
 
 function respondWithCache(ctx, cached) {
 	Object.entries(cached.headers).forEach(e => ctx.set(e[0], e[1]));
+	// Setting the status explicitly is required as the body is just piped
 	ctx.status = 200;
 
 	ctx.body = ctx.res.pipe(cached.body.rewind());
