@@ -3,7 +3,11 @@ const {ReReadable} = require("rereadable-stream");
 const fetch = require('node-fetch');
 
 const MAX_FONT_ENTRIES = process.env.MAX_FONT_ENTRIES || 1000;
-const {getFromCache, addToCache} = require('./cache')('font', MAX_FONT_ENTRIES);
+const {getFromCache, addToCache, stats} = require('./cache')('font', MAX_FONT_ENTRIES);
+
+if (process.env.LOG_STATS) {
+	setInterval(() => console.log('font', stats()), 30000);
+}
 
 function respondWithCache(ctx, cached) {
 	Object.entries(cached.headers).forEach(e => ctx.set(e[0], e[1]));

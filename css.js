@@ -3,7 +3,11 @@ const fetch = require('node-fetch');
 const PUBLIC_URL = `${process.env.PUBLIC_URL || 'http://localhost:3000'}/font`;
 const MAX_CSS_ENTRIES = process.env.MAX_CSS_ENTRIES || 10000;
 
-const {getFromCache, addToCache} = require('./cache')('css', MAX_CSS_ENTRIES);
+const {getFromCache, addToCache, stats} = require('./cache')('css', MAX_CSS_ENTRIES);
+
+if (process.env.LOG_STATS) {
+	setInterval(() => console.log('css', stats()), 30000);
+}
 
 function respondWithCache(ctx, cached) {
 	Object.entries(cached.headers).forEach(e => ctx.set(e[0], e[1]));

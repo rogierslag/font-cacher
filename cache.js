@@ -1,7 +1,10 @@
 const MAX_DATE = new Date(8640000000000000);
 
 module.exports = function createCache(name, maxSize) {
+	const started = new Date().toISOString();
 	const cache = new Map();
+	let hits = 0;
+	let misses = 0;
 
 	// Throws the least recently used item from the cache
 	function trimCache() {
@@ -26,7 +29,10 @@ module.exports = function createCache(name, maxSize) {
 		}
 		const cachedValue = cache.get(querystring);
 		if (cachedValue) {
+			hits++;
 			cachedValue.last_used_at = new Date();
+		} else {
+			misses++;
 		}
 
 		return cachedValue || null;
@@ -46,8 +52,19 @@ module.exports = function createCache(name, maxSize) {
 		return result;
 	}
 
+	function stats() {
+		return {
+			hits,
+			misses,
+			size : cache.size,
+			maxSize,
+			started
+		}
+	}
+
 	return {
 		getFromCache,
-		addToCache
+		addToCache,
+		stats
 	}
 };
