@@ -14,7 +14,7 @@ const log = (level, message) => {
 const rootDir = `${__dirname}/example`;
 const port = Number(process.env.PORT) ? Number(process.env.PORT) : 3000;
 
-server.use(router.get('/_health', ctx => ctx.body = {state : 'HEALTHY', message : "Land ahoy!"}));
+server.use(router.get('/_health', ctx => ctx.body = {state : 'HEALTHY', message : "I'm styley and I know it"}));
 server.use(router.get('/css', ctx => css(ctx)));
 server.use(router.get('/font/*', ctx => font(ctx)));
 
