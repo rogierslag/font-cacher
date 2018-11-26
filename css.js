@@ -18,7 +18,7 @@ function respondWithCache(ctx, cached) {
 function key(querystring, userAgent) {
 	try {
 		const ua = parser(userAgent);
-		if (!!ua.browser) {
+		if (!ua.browser) {
 			// Seems as a programmatic approach, so do not touch this and forward to Google
 			return null;
 		}

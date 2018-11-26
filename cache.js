@@ -18,7 +18,7 @@ module.exports = function createCache(name, maxSize) {
 				return previousValue;
 			}, {last_used_at : MAX_DATE});
 
-		console.log(`Will delete font key ${itemToDelete.key} (last used at: ${itemToDelete.last_used_at.toISOString()}`);
+		console.log(`Will delete ${name} key ${itemToDelete.key} (last used at: ${itemToDelete.last_used_at.toISOString()}`);
 		cache.delete(itemToDelete.key);
 	}
 
