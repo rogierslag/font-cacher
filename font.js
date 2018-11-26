@@ -16,6 +16,11 @@ function respondWithCache(ctx, cached) {
 	ctx.body = ctx.res.pipe(cached.body.rewind());
 }
 
+function ninetyDaysInTheFuture() {
+	const now = new Date() - 0;
+	return new Date(now + 90 * 86400000).toGMTString();
+}
+
 module.exports = async function font(ctx) {
 	const cacheKey = ctx.path.replace('/font/', '');
 
@@ -42,7 +47,7 @@ module.exports = async function font(ctx) {
 		'Content-Type' : result.headers.get('content-type'),
 		'Cache-Control' : result.headers.get('cache-control'),
 		'Date' : result.headers.get('date'),
-		'Expires' : result.headers.get('expires'),
+		'Expires' : ninetyDaysInTheFuture(),
 		'Last-Modified' : result.headers.get('last-modified'),
 		'timing-allow-origin' : result.headers.get('timing-allow-origin'),
 		'x-content-type-options' : result.headers.get('x-content-type-options'),
