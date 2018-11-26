@@ -1,0 +1,17 @@
+{
+  "name": "font-cacher",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "Rogier Slag <rogier.slag@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "isomorphic-fetch": "^2.2.1",
+    "koa": "^2.6.2",
+    "koa-route": "^3.2.0",
+    "node-fetch": "^2.3.0",
+    "rereadable-stream": "^1.2.0"
+  },
+  "devDependencies": {
+    "koa-static": "^5.0.0"
+  }
+}
