@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const parser = require('ua-parser-js');
 
 const PUBLIC_URL = `${process.env.PUBLIC_URL || 'http://localhost:3000'}/font`;
 const MAX_CSS_ENTRIES = process.env.MAX_CSS_ENTRIES || 10000;
@@ -15,8 +16,26 @@ function respondWithCache(ctx, cached) {
 	ctx.body = cached.body;
 }
 
+function key(querystring, userAgent) {
+	try {
+		const ua = parser(userAgent);
+		if (!!ua.browser) {
+			// Seems as a programmatic approach, so do not touch this and forward to Google
+			return null;
+		}
+		const isMobile = ua.device && ua.device.type === 'mobile';
+		const browser = ua.browser.name.toLowerCase();
+		const version = ua.browser.major;
+		return `${querystring}|${browser}${isMobile ? '-mobile' : ''}|${version}`;
+	} catch (e) {
+		console.error('Could not determine cache key', querystring, userAgent, e);
+		return null;
+	}
+}
+
 module.exports = async function css(ctx, log) {
-	const cacheKey = ctx.querystring;
+	const cacheKey = key(ctx.querystring, ctx.req.headers['user-agent']);
+	console.log(cacheKey);
 
 	const cached = getFromCache(cacheKey);
 	if (cached) {
@@ -31,7 +50,7 @@ module.exports = async function css(ctx, log) {
 		'accept-language' : ctx.header['accept-language'],
 		'referer' : ctx.header['referer'],
 	};
-	const forwardUrl = `https://fonts.googleapis.com/css?${cacheKey}`;
+	const forwardUrl = `https://fonts.googleapis.com/css?${ctx.querystring}`;
 	const result = await fetch(forwardUrl, {
 		method : 'get',
 		headers

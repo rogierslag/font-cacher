@@ -22,12 +22,15 @@ module.exports = function createCache(name, maxSize) {
 		cache.delete(itemToDelete.key);
 	}
 
-	function getFromCache(querystring) {
+	function getFromCache(cacheKey) {
+		if (cacheKey === null) {
+			return null;
+		}
 		if (Math.random() < 0.001) {
 			console.log(`${name} cache clean started`);
 			trimCache();
 		}
-		const cachedValue = cache.get(querystring);
+		const cachedValue = cache.get(cacheKey);
 		if (cachedValue) {
 			hits++;
 			cachedValue.last_used_at = new Date();
@@ -38,9 +41,12 @@ module.exports = function createCache(name, maxSize) {
 		return cachedValue || null;
 	}
 
-	function addToCache(querystring, headers, body) {
-		cache.set(querystring, {headers, body, last_used_at : new Date()});
-		const result = cache.get(querystring);
+	function addToCache(cacheKey, headers, body) {
+		const cacheValue = {headers, body, last_used_at : new Date()};
+		if (cacheKey === null) {
+			return cacheValue
+		}
+		cache.set(cacheKey, cacheValue);
 
 		if (cache.size >= maxSize) {
 			console.log(`${name} cache clean required`);
@@ -49,7 +55,7 @@ module.exports = function createCache(name, maxSize) {
 		console.log(`${name} cache contains ${cache.size} items`);
 
 		// Always return the set item, even if it may have been removed immediately
-		return result;
+		return cacheValue;
 	}
 
 	function stats() {

@@ -26,7 +26,7 @@ module.exports = async function font(ctx) {
 
 	const cached = getFromCache(cacheKey);
 	if (cached) {
-		// Cacht hit, hence early return
+		// Cache hit, hence early return
 		respondWithCache(ctx, cached);
 		return;
 	}
