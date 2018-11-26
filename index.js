@@ -1,6 +1,6 @@
 const Koa = require('koa');
 const router = require('koa-route');
-// import {addToCache, getFromCache} from "./cache";
+
 const css = require('./css');
 const font = require('./font');
 
@@ -15,8 +15,8 @@ const rootDir = `${__dirname}/example`;
 const port = Number(process.env.PORT) ? Number(process.env.PORT) : 3000;
 
 server.use(router.get('/_health', ctx => ctx.body = {state : 'HEALTHY', message : "Land ahoy!"}));
-server.use(router.get('/css', ctx => css(ctx, log)));
-server.use(router.get('/font/*', ctx => font(ctx, log)));
+server.use(router.get('/css', ctx => css(ctx)));
+server.use(router.get('/font/*', ctx => font(ctx)));
 
 const onReady = () => {
 	log('info', 'Server is ready');

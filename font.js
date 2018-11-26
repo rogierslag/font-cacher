@@ -14,10 +14,10 @@ function respondWithCache(ctx, cached) {
 
 module.exports = async function font(ctx) {
 	const cacheKey = ctx.path.replace('/font/', '');
-	console.log(`Getting font ${cacheKey}`);
+
 	const cached = getFromCache(cacheKey);
 	if (cached) {
-		console.log('Yaas cache hit');
+		// Cacht hit, hence early return
 		respondWithCache(ctx, cached);
 		return;
 	}
@@ -25,7 +25,6 @@ module.exports = async function font(ctx) {
 	const headers = {
 		'user-agent' : ctx.header['user-agent'],
 		'accept' : ctx.header['accept'],
-		'accept-encoding' : ctx.header['accept-encoding'],
 	};
 	const forwardUrl = `https://fonts.gstatic.com/s/${cacheKey}`;
 	const result = await fetch(forwardUrl, {
@@ -45,6 +44,7 @@ module.exports = async function font(ctx) {
 		'x-content-type-options' : result.headers.get('x-content-type-options'),
 	};
 
+	// Ensure we can re-read the stream at any point in time
 	const rereadable = result.body.pipe(new ReReadable());
 	respondWithCache(ctx, addToCache(cacheKey, responseHeaders, rereadable));
 };

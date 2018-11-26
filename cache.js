@@ -3,6 +3,7 @@ const MAX_DATE = new Date(8640000000000000);
 module.exports = function createCache(name, maxSize) {
 	const cache = new Map();
 
+	// Throws the least recently used item from the cache
 	function trimCache() {
 		const itemToDelete = Array.from(cache.entries())
 			.map(e => ({key : e[0], last_used_at : e[1].last_used_at}))
@@ -13,7 +14,8 @@ module.exports = function createCache(name, maxSize) {
 				}
 				return previousValue;
 			}, {last_used_at : MAX_DATE});
-		console.log(`Will delete font key ${itemToDelete.key} (last used at: ${itemToDelete.last_used_at}`);
+
+		console.log(`Will delete font key ${itemToDelete.key} (last used at: ${itemToDelete.last_used_at.toISOString()}`);
 		cache.delete(itemToDelete.key);
 	}
 
@@ -40,6 +42,7 @@ module.exports = function createCache(name, maxSize) {
 		}
 		console.log(`${name} cache contains ${cache.size} items`);
 
+		// Always return the set item, even if it may have been removed immediately
 		return result;
 	}
 
