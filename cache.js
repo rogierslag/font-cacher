@@ -18,9 +18,23 @@ module.exports = function createCache(name, maxSize) {
 				return previousValue;
 			}, {last_used_at : MAX_DATE});
 
-		console.log(`Will delete ${name} key ${itemToDelete.key} (last used at: ${itemToDelete.last_used_at.toISOString()}`);
+		console.log(`Will delete ${name} key ${itemToDelete.key} (last used at: ${itemToDelete.last_used_at.toISOString()})`);
 		cache.delete(itemToDelete.key);
 	}
+
+	// Throws out all items over 7 days old
+	function pruneCache() {
+		const threshold = new Date() - 7 * 24 * 60 * 60 * 1000;
+		Array.from(cache.entries())
+			.map(e => ({key : e[0], added_at : e[1].added_at}))
+			.filter(e => e.added_at < threshold)
+			.forEach(e => {
+				console.log(`Will delete ${name} key ${e.key} (added at: ${e.added_at.toISOString()})`);
+				cache.delete(e.key);
+			});
+	}
+
+	setInterval(pruneCache, 60 * 60 * 1000);
 
 	function getFromCache(cacheKey) {
 		if (cacheKey === null) {
@@ -42,7 +56,7 @@ module.exports = function createCache(name, maxSize) {
 	}
 
 	function addToCache(cacheKey, headers, body) {
-		const cacheValue = {headers, body, last_used_at : new Date()};
+		const cacheValue = {headers, body, last_used_at : new Date(), added_at : new Date()};
 		if (cacheKey === null) {
 			return cacheValue
 		}
