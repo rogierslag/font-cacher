@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 const parser = require('ua-parser-js');
+const log = require('./log');
 
 const PUBLIC_URL = `${process.env.PUBLIC_URL || 'http://localhost:3000'}/font`;
 const MAX_CSS_ENTRIES = process.env.MAX_CSS_ENTRIES || 10000;
@@ -7,7 +8,8 @@ const MAX_CSS_ENTRIES = process.env.MAX_CSS_ENTRIES || 10000;
 const {getFromCache, addToCache, stats} = require('./cache')('css', MAX_CSS_ENTRIES);
 
 if (process.env.LOG_STATS) {
-	setInterval(() => console.log('css', stats()), 300000);
+	// Log every six hours
+	setInterval(() => console.log('css', stats()), 6 * 60 * 60 * 1000);
 }
 
 function respondWithCache(ctx, cached) {
@@ -27,7 +29,7 @@ function key(querystring, userAgent) {
 		const version = ua.browser.major;
 		return `${querystring}|${browser}${isMobile ? '-mobile' : ''}|${version}`;
 	} catch (e) {
-		console.error('Could not determine cache key', querystring, userAgent, e);
+		log('error', `Could not determine cache key for q=${querystring}; ua=${userAgent}. Got ${e}`);
 		return null;
 	}
 }

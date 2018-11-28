@@ -1,12 +1,13 @@
 require('isomorphic-fetch');
 const {ReReadable} = require("rereadable-stream");
 const fetch = require('node-fetch');
+const log = require('./log');
 
 const MAX_FONT_ENTRIES = process.env.MAX_FONT_ENTRIES || 1000;
 const {getFromCache, addToCache, stats} = require('./cache')('font', MAX_FONT_ENTRIES);
 
 if (process.env.LOG_STATS) {
-	setInterval(() => console.log('font', stats()), 300000);
+	setInterval(() => console.log('font', stats()), 6 * 60 * 60 * 1000);
 }
 
 function respondWithCache(ctx, cached) {

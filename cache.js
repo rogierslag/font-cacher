@@ -1,3 +1,5 @@
+const log = require('./log');
+
 const MAX_DATE = new Date(8640000000000000);
 
 module.exports = function createCache(name, maxSize) {
@@ -18,18 +20,19 @@ module.exports = function createCache(name, maxSize) {
 				return previousValue;
 			}, {last_used_at : MAX_DATE});
 
-		console.log(`Will delete ${name} key ${itemToDelete.key} (last used at: ${itemToDelete.last_used_at.toISOString()})`);
+		log('info', `Will delete ${name} key ${itemToDelete.key} (last used at: ${itemToDelete.last_used_at.toISOString()})`);
 		cache.delete(itemToDelete.key);
 	}
 
 	// Throws out all items over 7 days old
 	function pruneCache() {
+		log('info', 'Starting cache pruning');
 		const threshold = new Date() - 7 * 24 * 60 * 60 * 1000;
 		Array.from(cache.entries())
 			.map(e => ({key : e[0], added_at : e[1].added_at}))
 			.filter(e => e.added_at < threshold)
 			.forEach(e => {
-				console.log(`Will delete ${name} key ${e.key} (added at: ${e.added_at.toISOString()})`);
+				log('info', `Will delete ${name} key ${e.key} (added at: ${e.added_at.toISOString()})`);
 				cache.delete(e.key);
 			});
 	}
@@ -41,7 +44,7 @@ module.exports = function createCache(name, maxSize) {
 			return null;
 		}
 		if (Math.random() < 0.001) {
-			console.log(`${name} cache clean started`);
+			log('info', `${name} cache clean started`);
 			trimCache();
 		}
 		const cachedValue = cache.get(cacheKey);
@@ -63,10 +66,10 @@ module.exports = function createCache(name, maxSize) {
 		cache.set(cacheKey, cacheValue);
 
 		if (cache.size >= maxSize) {
-			console.log(`${name} cache clean required`);
+			log('info', `${name} cache clean required`);
 			trimCache();
 		}
-		console.log(`${name} cache contains ${cache.size} items`);
+		log('info', `${name} cache contains ${cache.size} items`);
 
 		// Always return the set item, even if it may have been removed immediately
 		return cacheValue;
