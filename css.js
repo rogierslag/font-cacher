@@ -75,8 +75,8 @@ const css = async function css(ctx, log) {
 
 	respondWithCache(ctx, addToCache(cacheKey, headersToCache, bodyToCache));
 };
-css.stats = function statistics(ctx) {
-	ctx.body = stats();
+css.stats = function statistics(ctx, serviceId) {
+	ctx.body = Object.assign({}, stats(), serviceId);
 };
 
 module.exports = css;

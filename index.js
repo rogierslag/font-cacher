@@ -23,8 +23,8 @@ const ONE_MEGABYTE = 1024 * 1024;
 server.use(router.get('/_health', ctx => ctx.body = {state : 'HEALTHY', message : "I'm styley and I know it"}));
 server.use(router.get('/css', ctx => css(ctx)));
 server.use(router.get('/font/*', ctx => font(ctx)));
-server.use(router.get('/_stats/css', ctx => css.stats(ctx)));
-server.use(router.get('/_stats/font', ctx => font.stats(ctx)));
+server.use(router.get('/_stats/css', ctx => css.stats(ctx, consulServiceId)));
+server.use(router.get('/_stats/font', ctx => font.stats(ctx, consulServiceId)));
 server.use(router.get('/_stats/memory', ctx => {
 	const memory = process.memoryUsage();
 	const mbMemory = Object.entries(memory)
@@ -35,6 +35,7 @@ server.use(router.get('/_stats/memory', ctx => {
 			return prev;
 		}, {});
 	ctx.body = {
+		serviceId : consulServiceId,
 		bytes : memory,
 		megabytes : mbMemory,
 	};
