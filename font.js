@@ -60,7 +60,7 @@ const font = async function font(ctx) {
 	respondWithCache(ctx, addToCache(cacheKey, responseHeaders, rereadable));
 };
 font.stats = function statistics(ctx, serviceId) {
-	ctx.body = Object.assign({}, stats(), serviceId);
+	ctx.body = Object.assign({}, stats(), {serviceId});
 };
 
 module.exports = font;
