@@ -21,6 +21,11 @@ const port = Number(process.env.PORT) ? Number(process.env.PORT) : 3000;
 server.use(router.get('/_health', ctx => ctx.body = {state : 'HEALTHY', message : "I'm styley and I know it"}));
 server.use(router.get('/css', ctx => css(ctx)));
 server.use(router.get('/font/*', ctx => font(ctx)));
+server.use(router.get('/_stats/css', ctx => css.stats(ctx)));
+server.use(router.get('/_stats/font', ctx => font.stats(ctx)));
+server.use(router.get('/_stats/memory', ctx => {
+	ctx.body = process.memoryUsage();
+}));
 
 const onReady = () => {
 	// Register in Consul if required

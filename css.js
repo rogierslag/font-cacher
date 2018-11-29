@@ -33,8 +33,7 @@ function key(querystring, userAgent) {
 		return null;
 	}
 }
-
-module.exports = async function css(ctx, log) {
+const css = async function css(ctx, log) {
 	const cacheKey = key(ctx.querystring, ctx.req.headers['user-agent']);
 
 	const cached = getFromCache(cacheKey);
@@ -76,3 +75,8 @@ module.exports = async function css(ctx, log) {
 
 	respondWithCache(ctx, addToCache(cacheKey, headersToCache, bodyToCache));
 };
+css.stats = function statistics(ctx) {
+	ctx.body = stats();
+};
+
+module.exports = css;

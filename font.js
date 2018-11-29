@@ -23,7 +23,7 @@ function ninetyDaysInTheFuture() {
 	return new Date(now + 90 * 86400000).toGMTString();
 }
 
-module.exports = async function font(ctx) {
+const font = async function font(ctx) {
 	const cacheKey = ctx.path.replace('/font/', '');
 
 	const cached = getFromCache(cacheKey);
@@ -59,3 +59,8 @@ module.exports = async function font(ctx) {
 	const rereadable = result.body.pipe(new ReReadable());
 	respondWithCache(ctx, addToCache(cacheKey, responseHeaders, rereadable));
 };
+font.stats = function statistics(ctx) {
+	ctx.body = stats();
+};
+
+module.exports = font;
