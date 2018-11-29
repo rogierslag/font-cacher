@@ -18,13 +18,26 @@ const consulHost = process.env.CONSUL_HOST ? process.env.CONSUL_HOST : "localhos
 const serviceHost = process.env.SERVICE_HOST ? process.env.SERVICE_HOST : "localdev.internal.magnet.me";
 const port = Number(process.env.PORT) ? Number(process.env.PORT) : 3000;
 
+const ONE_MEGABYTE = 1024 * 1024;
+
 server.use(router.get('/_health', ctx => ctx.body = {state : 'HEALTHY', message : "I'm styley and I know it"}));
 server.use(router.get('/css', ctx => css(ctx)));
 server.use(router.get('/font/*', ctx => font(ctx)));
 server.use(router.get('/_stats/css', ctx => css.stats(ctx)));
 server.use(router.get('/_stats/font', ctx => font.stats(ctx)));
 server.use(router.get('/_stats/memory', ctx => {
-	ctx.body = process.memoryUsage();
+	const memory = process.memoryUsage();
+	const mbMemory = Object.entries(memory)
+		.map(e => ({key : e[0], value : e[1]}))
+		.reduce((prev, next) => {
+			// Round to 1 digit
+			prev[next.key] = Math.round(next.value * 100 / ONE_MEGABYTE) / 100;
+			return prev;
+		}, {});
+	ctx.body = {
+		bytes : memory,
+		megabytes : mbMemory,
+	};
 }));
 
 const onReady = () => {
