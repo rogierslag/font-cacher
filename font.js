@@ -12,6 +12,7 @@ if (process.env.LOG_STATS) {
 
 function respondWithCache(ctx, cached) {
 	Object.entries(cached.headers).forEach(e => ctx.set(e[0], e[1]));
+	ctx.set('Expires', ninetyDaysInTheFuture());
 	// Setting the status explicitly is required as the body is just piped
 	ctx.status = 200;
 
@@ -44,12 +45,10 @@ const font = async function font(ctx) {
 	});
 
 	const responseHeaders = {
-		'Age' : result.headers.get('age'),
 		'Access-Control-Allow-Origin' : result.headers.get('Access-Control-Allow-Origin'),
 		'Content-Type' : result.headers.get('content-type'),
 		'Cache-Control' : result.headers.get('cache-control'),
 		'Date' : result.headers.get('date'),
-		'Expires' : ninetyDaysInTheFuture(),
 		'Last-Modified' : result.headers.get('last-modified'),
 		'timing-allow-origin' : result.headers.get('timing-allow-origin'),
 		'x-content-type-options' : result.headers.get('x-content-type-options'),

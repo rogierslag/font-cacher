@@ -12,8 +12,14 @@ if (process.env.LOG_STATS) {
 	setInterval(() => console.log('css', stats()), 6 * 60 * 60 * 1000);
 }
 
+function ninetyDaysInTheFuture() {
+	const now = new Date() - 0;
+	return new Date(now + 90 * 86400000).toGMTString();
+}
+
 function respondWithCache(ctx, cached) {
 	Object.entries(cached.headers).forEach(e => ctx.set(e[0], e[1]));
+	ctx.set('Expires', ninetyDaysInTheFuture());
 	ctx.body = cached.body;
 }
 
@@ -63,7 +69,6 @@ const css = async function css(ctx, log) {
 		'Content-Type' : result.headers.get('content-type'),
 		'Cache-Control' : result.headers.get('cache-control'),
 		'Date' : result.headers.get('date'),
-		'Expires' : result.headers.get('expires'),
 		'timing-allow-origin' : '*',
 		'access-control-allow-origin' : '*',
 		'Status' : '200',
