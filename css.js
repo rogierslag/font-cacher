@@ -24,6 +24,10 @@ function respondWithCache(ctx, cached) {
 }
 
 function key(querystring, userAgent) {
+	if (!userAgent) {
+		// We have no clue who we are talking to, so we let Google handle this
+		return null;
+	}
 	try {
 		const ua = parser(userAgent);
 		if (!ua.browser || !ua.browser.name) {
@@ -39,6 +43,7 @@ function key(querystring, userAgent) {
 		return null;
 	}
 }
+
 const css = async function css(ctx, log) {
 	const cacheKey = key(ctx.querystring, ctx.req.headers['user-agent']);
 
