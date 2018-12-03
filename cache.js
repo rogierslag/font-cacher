@@ -26,7 +26,7 @@ module.exports = function createCache(name, maxSize) {
 
 	// Throws out all items over 7 days old
 	function pruneCache() {
-		log('info', 'Starting cache pruning');
+		log('info', `Starting cache pruning for ${name}`);
 		const threshold = new Date() - 7 * 24 * 60 * 60 * 1000;
 		Array.from(cache.entries())
 			.map(e => ({key : e[0], added_at : e[1].added_at}))
