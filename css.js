@@ -1,9 +1,10 @@
 const fetch = require('node-fetch');
 const parser = require('ua-parser-js');
 const log = require('./log');
+const parseNumberOrDefault = require('./numberParser');
 
 const PUBLIC_URL = `${process.env.PUBLIC_URL || 'http://localhost:3000'}/font`;
-const MAX_CSS_ENTRIES = process.env.MAX_CSS_ENTRIES || 500;
+const MAX_CSS_ENTRIES = parseNumberOrDefault(process.env.MAX_CSS_ENTRIES, 500);
 
 const {getFromCache, addToCache, stats} = require('./cache')('css', MAX_CSS_ENTRIES);
 

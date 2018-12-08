@@ -2,8 +2,9 @@ require('isomorphic-fetch');
 const {ReReadable} = require("rereadable-stream");
 const fetch = require('node-fetch');
 const log = require('./log');
+const parseNumberOrDefault = require('./numberParser');
 
-const MAX_FONT_ENTRIES = process.env.MAX_FONT_ENTRIES || 250;
+const MAX_FONT_ENTRIES = parseNumberOrDefault(process.env.MAX_FONT_ENTRIES, 250);
 const {getFromCache, addToCache, stats} = require('./cache')('font', MAX_FONT_ENTRIES);
 
 if (process.env.LOG_STATS) {
