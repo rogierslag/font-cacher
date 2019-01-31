@@ -8,6 +8,11 @@ const MAX_CSS_ENTRIES = parseNumberOrDefault(process.env.MAX_CSS_ENTRIES, 500);
 
 const {getFromCache, addToCache, stats} = require('./cache')('css', MAX_CSS_ENTRIES);
 
+const CSS_CACHE_CONTROL = process.env.CSS_CACHE_CONTROL || null;
+if (CSS_CACHE_CONTROL) {
+	log('info', `Using a cache-control response for CSS of '${CSS_CACHE_CONTROL}'`);
+}
+
 if (process.env.LOG_STATS) {
 	// Log every six hours
 	setInterval(() => console.log('css', stats()), 6 * 60 * 60 * 1000);
@@ -71,9 +76,11 @@ const css = async function css(ctx, log) {
 	// Redirect the actual font files to ourselves
 	const bodyToCache = originalCss.replace(/https:\/\/fonts\.gstatic\.com\/s/g, PUBLIC_URL);
 
+	console.log(CSS_CACHE_CONTROL, result.headers.get('cache-control'), CSS_CACHE_CONTROL || result.headers.get('cache-control'));
+
 	const headersToCache = {
 		'Content-Type' : result.headers.get('content-type'),
-		'Cache-Control' : result.headers.get('cache-control'),
+		'Cache-Control' : CSS_CACHE_CONTROL || result.headers.get('cache-control'),
 		'Date' : result.headers.get('date'),
 		'timing-allow-origin' : '*',
 		'access-control-allow-origin' : '*',

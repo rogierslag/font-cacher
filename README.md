@@ -11,6 +11,8 @@ The system is configured using environment variables
 |---|---|
 | MAX_CSS_ENTRIES | The maximum number of CSS entries to cache. _Default 10000._ |
 | MAX_FONT_ENTRIES | The maximum number of font entries to cache. _Default 1000._ |
+| CSS_CACHE_CONTROL | The value of the `Cache-control` header for all CSS responses. If not set, the upstream value will be used. |
+| FONT_CACHE_CONTROL | The value of the `Cache-control` header for all font responses. If not set, the upstream value will be used. |
 | PUBLIC_URL | The maximum number of CSS entries to cache. _Default `http://localhost:3000/font/`._ |
 
 

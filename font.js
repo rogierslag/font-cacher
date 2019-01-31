@@ -7,6 +7,11 @@ const parseNumberOrDefault = require('./numberParser');
 const MAX_FONT_ENTRIES = parseNumberOrDefault(process.env.MAX_FONT_ENTRIES, 250);
 const {getFromCache, addToCache, stats} = require('./cache')('font', MAX_FONT_ENTRIES);
 
+const FONT_CACHE_CONTROL = process.env.FONT_CACHE_CONTROL || null;
+if (FONT_CACHE_CONTROL) {
+	log('info', `Using a cache-control response for fonts of '${FONT_CACHE_CONTROL}'`);
+}
+
 if (process.env.LOG_STATS) {
 	setInterval(() => console.log('font', stats()), 6 * 60 * 60 * 1000);
 }
@@ -48,7 +53,7 @@ const font = async function font(ctx) {
 	const responseHeaders = {
 		'Access-Control-Allow-Origin' : result.headers.get('Access-Control-Allow-Origin'),
 		'Content-Type' : result.headers.get('content-type'),
-		'Cache-Control' : result.headers.get('cache-control'),
+		'Cache-Control' : FONT_CACHE_CONTROL || result.headers.get('cache-control'),
 		'Date' : result.headers.get('date'),
 		'Last-Modified' : result.headers.get('last-modified'),
 		'timing-allow-origin' : result.headers.get('timing-allow-origin'),
