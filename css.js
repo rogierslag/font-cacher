@@ -76,8 +76,6 @@ const css = async function css(ctx, log) {
 	// Redirect the actual font files to ourselves
 	const bodyToCache = originalCss.replace(/https:\/\/fonts\.gstatic\.com\/s/g, PUBLIC_URL);
 
-	console.log(CSS_CACHE_CONTROL, result.headers.get('cache-control'), CSS_CACHE_CONTROL || result.headers.get('cache-control'));
-
 	const headersToCache = {
 		'Content-Type' : result.headers.get('content-type'),
 		'Cache-Control' : CSS_CACHE_CONTROL || result.headers.get('cache-control'),
