@@ -68,7 +68,6 @@ const css = async function css(ctx, retryCount = 0) {
 	};
 	const forwardUrl = `https://fonts.googleapis.com/css?${ctx.querystring}`;
 	try {
-		if(retryCount < 2) throw new Error("test");
 		const result = await fetch(forwardUrl, {
 			method : 'get',
 			headers
