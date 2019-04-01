@@ -50,7 +50,7 @@ function key(querystring, userAgent) {
 	}
 }
 
-const css = async function css(ctx, log) {
+const css = async function css(ctx, retryCount = 0) {
 	const cacheKey = key(ctx.querystring, ctx.req.headers['user-agent']);
 
 	const cached = getFromCache(cacheKey);
@@ -67,29 +67,41 @@ const css = async function css(ctx, log) {
 		'referer' : ctx.header['referer'],
 	};
 	const forwardUrl = `https://fonts.googleapis.com/css?${ctx.querystring}`;
-	const result = await fetch(forwardUrl, {
-		method : 'get',
-		headers
-	});
-	const originalCss = await result.text();
+	try {
+		if(retryCount < 2) throw new Error("test");
+		const result = await fetch(forwardUrl, {
+			method : 'get',
+			headers
+		});
+		const originalCss = await result.text();
 
-	// Redirect the actual font files to ourselves
-	const bodyToCache = originalCss.replace(/https:\/\/fonts\.gstatic\.com\/s/g, PUBLIC_URL);
+		// Redirect the actual font files to ourselves
+		const bodyToCache = originalCss.replace(/https:\/\/fonts\.gstatic\.com\/s/g, PUBLIC_URL);
 
-	const headersToCache = {
-		'Content-Type' : result.headers.get('content-type'),
-		'Cache-Control' : CSS_CACHE_CONTROL || result.headers.get('cache-control'),
-		'Date' : result.headers.get('date'),
-		'timing-allow-origin' : '*',
-		'access-control-allow-origin' : '*',
-		'Status' : '200',
-	};
-	if (result.headers.get('last-modified')) {
-		// This is not always provided from upstream
-		headersToCache['Last-Modified'] = result.headers.get('last-modified');
+		const headersToCache = {
+			'Content-Type' : result.headers.get('content-type'),
+			'Cache-Control' : CSS_CACHE_CONTROL || result.headers.get('cache-control'),
+			'Date' : result.headers.get('date'),
+			'timing-allow-origin' : '*',
+			'access-control-allow-origin' : '*',
+			'Status' : '200',
+		};
+		if (result.headers.get('last-modified')) {
+			// This is not always provided from upstream
+			headersToCache['Last-Modified'] = result.headers.get('last-modified');
+		}
+
+		respondWithCache(ctx, addToCache(cacheKey, headersToCache, bodyToCache));
+	} catch (e) {
+		if (retryCount < 3) {
+			log('warn', `Error occurred when fetching CSS data upstream. Will retry. ${e.toString()}`);
+			await css(ctx, retryCount + 1);
+			return;
+		}
+		log('error', `Error occurred when fetching CSS data upstream: ${e.toString()}`);
+		ctx.status = 503;
+		ctx.body = 'Upstream service failure';
 	}
-
-	respondWithCache(ctx, addToCache(cacheKey, headersToCache, bodyToCache));
 };
 css.stats = function statistics(ctx, serviceId) {
 	ctx.body = Object.assign({}, stats(), {serviceId});

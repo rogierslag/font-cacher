@@ -30,7 +30,7 @@ function ninetyDaysInTheFuture() {
 	return new Date(now + 90 * 86400000).toGMTString();
 }
 
-const font = async function font(ctx) {
+const font = async function font(ctx, retryCount = 0) {
 	const cacheKey = ctx.path.replace('/font/', '');
 
 	const cached = getFromCache(cacheKey);
@@ -45,24 +45,35 @@ const font = async function font(ctx) {
 		'accept' : ctx.header['accept'],
 	};
 	const forwardUrl = `https://fonts.gstatic.com/s/${cacheKey}`;
-	const result = await fetch(forwardUrl, {
-		method : 'get',
-		headers
-	});
+	try {
+		const result = await fetch(forwardUrl, {
+			method : 'get',
+			headers
+		});
 
-	const responseHeaders = {
-		'Access-Control-Allow-Origin' : result.headers.get('Access-Control-Allow-Origin'),
-		'Content-Type' : result.headers.get('content-type'),
-		'Cache-Control' : FONT_CACHE_CONTROL || result.headers.get('cache-control'),
-		'Date' : result.headers.get('date'),
-		'Last-Modified' : result.headers.get('last-modified'),
-		'timing-allow-origin' : result.headers.get('timing-allow-origin'),
-		'x-content-type-options' : result.headers.get('x-content-type-options'),
-	};
+		const responseHeaders = {
+			'Access-Control-Allow-Origin' : result.headers.get('Access-Control-Allow-Origin'),
+			'Content-Type' : result.headers.get('content-type'),
+			'Cache-Control' : FONT_CACHE_CONTROL || result.headers.get('cache-control'),
+			'Date' : result.headers.get('date'),
+			'Last-Modified' : result.headers.get('last-modified'),
+			'timing-allow-origin' : result.headers.get('timing-allow-origin'),
+			'x-content-type-options' : result.headers.get('x-content-type-options'),
+		};
 
-	// Ensure we can re-read the stream at any point in time
-	const rereadable = result.body.pipe(new ReReadable());
-	respondWithCache(ctx, addToCache(cacheKey, responseHeaders, rereadable));
+		// Ensure we can re-read the stream at any point in time
+		const rereadable = result.body.pipe(new ReReadable());
+		respondWithCache(ctx, addToCache(cacheKey, responseHeaders, rereadable));
+	} catch (e) {
+		if (retryCount < 3) {
+			log('warn', `Error occurred when fetching font data upstream. Will retry. ${e.toString()}`);
+			await font(ctx, retryCount + 1);
+			return;
+		}
+		log('error', `Error occurred when fetching font data upstream: ${e.toString()}`);
+		ctx.status = 503;
+		ctx.body = 'Upstream service failure';
+	}
 };
 font.stats = function statistics(ctx, serviceId) {
 	ctx.body = Object.assign({}, stats(), {serviceId});
