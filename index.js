@@ -48,7 +48,7 @@ const onReady = () => {
 			name : 'font-cacher',
 			id : consulServiceId,
 			address : serviceHost,
-			port : port,
+			port,
 			check : {
 				http : `http://${serviceHost}:${port}/_health`,
 				interval : "10s"
@@ -102,10 +102,21 @@ const shutdown = () => {
 	}
 };
 
-process.on('uncaughtException', (err) => {
-	log('error', JSON.stringify(err));
-	shutdown();
-});
+function handleError(errorType, withShutdown = false) {
+	return (err) => {
+		err.customReason = 'uncaughtException';
+		err.datetime = new Date();
+		log('error', JSON.stringify(err));
+		if (withShutdown) {
+			shutdown();
+		}
+	};
+}
+
+process.on('uncaughtException', handleError('uncaughtException', true));
+process.on('unhandledRejection', handleError('unhandledRejection', true));
+process.on('warning', handleError('warning'));
+process.on('message', handleError('message'));
 
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
