@@ -22,7 +22,7 @@ function respondWithCache(ctx, cached) {
 	// Setting the status explicitly is required as the body is just piped
 	ctx.status = 200;
 
-	ctx.body = ctx.res.pipe(cached.body.rewind());
+	ctx.body = cached.body.rewind();
 }
 
 function ninetyDaysInTheFuture() {
