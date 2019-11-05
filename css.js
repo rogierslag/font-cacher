@@ -2,6 +2,7 @@ const fetch = require('node-fetch');
 const parser = require('ua-parser-js');
 const log = require('./log');
 const parseNumberOrDefault = require('./numberParser');
+const parseCss = require('./cssParser');
 
 const PUBLIC_URL = `${process.env.PUBLIC_URL || 'http://localhost:3000'}/font`;
 const MAX_CSS_ENTRIES = parseNumberOrDefault(process.env.MAX_CSS_ENTRIES, 500);
@@ -50,6 +51,15 @@ function key(querystring, userAgent) {
 	}
 }
 
+function safeParsedCss(css) {
+	try {
+		return parseCss(css);
+	} catch(e) {
+		log('error', `Could not parse incoming CSS due to ${e.toString()}`);
+		return [];
+	}
+}
+
 const css = async function css(ctx, retryCount = 0) {
 	const cacheKey = key(ctx.querystring, ctx.req.headers['user-agent']);
 
@@ -77,6 +87,16 @@ const css = async function css(ctx, retryCount = 0) {
 		// Redirect the actual font files to ourselves
 		const bodyToCache = originalCss.replace(/https:\/\/fonts\.gstatic\.com\/s/g, PUBLIC_URL);
 
+		const parsedCss = safeParsedCss(bodyToCache);
+		// Get the subset to push, but always add latin. `null` is for IE support
+		const requestedSubsets = [null, ctx.query.subset, 'latin'];
+		const links = parsedCss.filter(i => requestedSubsets.includes(i.key))
+			.map(i => i.remoteSrc)
+			.filter(i => i)
+			.map(url => new URL(url).pathname)
+			.map(path => `<${path}>; as=font; rel=preload`)
+			.join(', ');
+
 		const headersToCache = {
 			'Content-Type' : result.headers.get('content-type'),
 			'Cache-Control' : CSS_CACHE_CONTROL || result.headers.get('cache-control'),
@@ -84,6 +104,7 @@ const css = async function css(ctx, retryCount = 0) {
 			'timing-allow-origin' : '*',
 			'access-control-allow-origin' : '*',
 			'Status' : '200',
+			'Link' : links,
 		};
 		if (result.headers.get('last-modified')) {
 			// This is not always provided from upstream
