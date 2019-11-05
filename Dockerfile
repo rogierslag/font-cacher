@@ -1,4 +1,4 @@
-FROM node:10.15
+FROM node:12.13
 MAINTAINER Rogier Slag <rogier.slag@gmail.com>
 
 EXPOSE 3000
