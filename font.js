@@ -66,6 +66,7 @@ const font = async function font(ctx, retryCount = 0) {
 	} catch (e) {
 		if (retryCount < 3) {
 			log('warn', `Error occurred when fetching font data upstream. Will retry. ${e.toString()}`);
+			// await new Promise(resolve => setTimeout(resolve, 10));
 			await font(ctx, retryCount + 1);
 			return;
 		}
