@@ -1,4 +1,3 @@
-require('isomorphic-fetch');
 const {ReReadable} = require("rereadable-stream");
 const fetch = require('node-fetch');
 const log = require('./log');
