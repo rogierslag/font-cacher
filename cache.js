@@ -10,6 +10,12 @@ module.exports = function createCache(name, maxSize) {
 
 	// Throws the least recently used item from the cache
 	function trimCache() {
+		const cacheUsage = cache.size / maxSize;
+		if (cacheUsage < 0.8) {
+			// When we have more then enough space, do not try to trim the cache
+			log('info', `No need for ${name} cache cleaning, as it is only used for ${Math.round(cacheUsage * 100)}%`);
+			return;
+		}
 		const itemToDelete = Array.from(cache.entries())
 			.map(e => ({key : e[0], last_used_at : e[1].last_used_at}))
 			.reduce((previousValue, currentValue) => {
