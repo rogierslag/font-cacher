@@ -13,7 +13,7 @@ RUN mkdir /service
 ADD yarn.lock /service/
 ADD package.json /service/
 RUN cd /service && yarn install --pure-lockfile
-ADD *.js /service/
+ADD src/*.js /service/
 
 USER luser
 WORKDIR /service
