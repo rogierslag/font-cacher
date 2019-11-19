@@ -94,7 +94,8 @@ const css = async function css(ctx, retryCount = 0) {
 			.map(i => i.remoteSrc)
 			.filter(i => i)
 			.map(url => new URL(url).pathname)
-			.map(path => `<${path}>; as=font; rel=preload`)
+			// crossorigin required as Chrome doesnt preload it otherwise
+			.map(path => `<${path}>; as=font; rel=preload; crossorigin=anonymous`)
 			.join(', ');
 
 		const headersToCache = {
