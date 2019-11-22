@@ -1,4 +1,4 @@
-import {oneYearInTheFuture} from "./dates";
+const dates = require('./dates');
 
 const fetch = require('node-fetch');
 const parser = require('ua-parser-js');
@@ -23,7 +23,7 @@ if (process.env.LOG_STATS) {
 
 function respondWithCache(ctx, cached) {
 	Object.entries(cached.headers).forEach(e => ctx.set(e[0], e[1]));
-	ctx.set('Expires', oneYearInTheFuture());
+	ctx.set('Expires', dates.oneYearInTheFuture());
 	ctx.body = cached.body;
 }
 

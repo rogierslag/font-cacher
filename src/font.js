@@ -1,4 +1,4 @@
-import {oneYearInTheFuture} from "./dates";
+const dates = require('./dates');
 
 const {ReReadable} = require("rereadable-stream");
 const fetch = require('node-fetch');
@@ -19,7 +19,7 @@ if (process.env.LOG_STATS) {
 
 function respondWithCache(ctx, cached) {
 	Object.entries(cached.headers).forEach(e => ctx.set(e[0], e[1]));
-	ctx.set('Expires', oneYearInTheFuture());
+	ctx.set('Expires', dates.oneYearInTheFuture());
 	// Setting the status explicitly is required as the body is just piped
 	ctx.status = 200;
 
