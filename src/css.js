@@ -1,3 +1,5 @@
+import {oneYearInTheFuture} from "./dates";
+
 const fetch = require('node-fetch');
 const parser = require('ua-parser-js');
 const log = require('./log');
@@ -19,14 +21,9 @@ if (process.env.LOG_STATS) {
 	setInterval(() => console.log('css', stats()), 6 * 60 * 60 * 1000);
 }
 
-function ninetyDaysInTheFuture() {
-	const now = new Date() - 0;
-	return new Date(now + 90 * 86400000).toGMTString();
-}
-
 function respondWithCache(ctx, cached) {
 	Object.entries(cached.headers).forEach(e => ctx.set(e[0], e[1]));
-	ctx.set('Expires', ninetyDaysInTheFuture());
+	ctx.set('Expires', oneYearInTheFuture());
 	ctx.body = cached.body;
 }
 
@@ -54,7 +51,7 @@ function key(querystring, userAgent) {
 function safeParsedCss(css) {
 	try {
 		return parseCss(css);
-	} catch(e) {
+	} catch (e) {
 		log('error', `Could not parse incoming CSS due to ${e.toString()}`);
 		return [];
 	}
