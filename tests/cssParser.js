@@ -1,6 +1,20 @@
 const fs = require('fs');
 const parseCss = require('../src/cssParser');
 
+function unicodeSimpleChromeWithSwapAndExtendedSubset() {
+	const simpleChromeWithSwapAndExtendedSubsetCss = fs.readFileSync(`${__dirname}/cssResources/simpleChromeWithSwapAndExtendedSubset.css`).toString();
+	const parsed = parseCss(simpleChromeWithSwapAndExtendedSubsetCss);
+	console.assert(parsed.length === 1, 'Length was not correct, got %d for %s', parsed.length, 'chromeWithSwapAndExtendedSubset');
+	const foundResource = parsed.find(e => e.key === 'latin' && e.fontStyle === 'italic' && e.fontDisplay === 'swap' && e.fontWeight === '400');
+
+	const unicodeSimple = foundResource.unicodeRanges.find(e => e.from === '0131');
+	const unicodeWildcard = foundResource.unicodeRanges.find(e => e.from === '0010');
+	const unicodeRange = foundResource.unicodeRanges.find(e => e.from === '0152');
+	console.assert(Object.keys(unicodeSimple).length === 2 && unicodeSimple.to === '0131', 'Did not get expected simple unicode range for %s', 'simpleChromeWithSwapAndExtendedSubset');
+	console.assert(Object.keys(unicodeWildcard).length === 2 && unicodeWildcard.to === '0019', 'Did not get expected wildcard unicode range for %s', 'simpleChromeWithSwapAndExtendedSubset');
+	console.assert(Object.keys(unicodeRange).length === 2 && unicodeRange.to === '0153', 'Did not get expected unicode range for %s', 'simpleChromeWithSwapAndExtendedSubset');
+}
+
 function chromeWithSwapAndExtendedSubset() {
 	const chromeWithSwapAndExtendedSubsetCss = fs.readFileSync(`${__dirname}/cssResources/chromeWithSwapAndExtendedSubset.css`).toString();
 	const parsed = parseCss(chromeWithSwapAndExtendedSubsetCss);
@@ -33,8 +47,8 @@ function msie11() {
 	console.assert(foundSource === 'https://fonts.gstatic.com/s/sourcesanspro/v13/6xKydSBYKcSV-LCoeQqfX1RYOo3ig4vwmRdo.woff', 'Did not get expected font file for %s', 'msie11');
 }
 
-function crambled() {
-	const simpleMsie11Css = fs.readFileSync(`${__dirname}/cssResources/crambledFile.css`).toString();
+function scrambled() {
+	const simpleMsie11Css = fs.readFileSync(`${__dirname}/cssResources/scrambledFile.css`).toString();
 	const parsed = parseCss(simpleMsie11Css);
 	console.assert(parsed.length === 1, 'Length was not correct, got %d for %s', parsed.length, 'crambled');
 	console.assert(parsed[0].key === 'key is here', 'Key was not correct for crambled');
@@ -44,10 +58,11 @@ function crambled() {
 	console.assert(parsed[0].remoteSrc === 'https://fonts.gstatic.com/s/sourcesanspro/v13/6xKydSBYKcSV-LCoeQqfX1RYOo3ik4zwlxdo.woff', 'remoteSrc was not correct for crambled');
 }
 
+unicodeSimpleChromeWithSwapAndExtendedSubset();
 chromeWithSwapAndExtendedSubset();
 chromeWithSwapAndSubset();
 simpleMsie11();
 msie11();
-crambled();
+scrambled();
 
 console.log('If no errors appeared above this line, all is well!');
