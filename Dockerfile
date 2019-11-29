@@ -17,4 +17,4 @@ ADD src/*.js /service/
 
 USER luser
 WORKDIR /service
-CMD ["/usr/local/bin/pm2-docker", "start", "index.js"]
+CMD ["/usr/local/bin/pm2-docker", "start", "index.js", "--instances=1"]
