@@ -40,8 +40,6 @@ module.exports = function createCache(name, maxSize) {
 		}
 	}
 
-	setInterval(() => trimCache(true), 15000);
-
 	// Throws out all items over 7 days old
 	function pruneCache() {
 		log('info', `Starting cache pruning for ${name}`);
