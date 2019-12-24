@@ -102,8 +102,11 @@ const css = async function css(ctx, retryCount = 0) {
 			'timing-allow-origin' : '*',
 			'access-control-allow-origin' : '*',
 			'Status' : '200',
-			'Link' : links,
 		};
+		if (ctx.query.noPush === undefined) {
+			// Default push resources, but allow opting out
+			headersToCache['Link'] = links;
+		}
 		if (result.headers.get('last-modified')) {
 			// This is not always provided from upstream
 			headersToCache['Last-Modified'] = result.headers.get('last-modified');

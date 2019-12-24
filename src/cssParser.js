@@ -18,6 +18,10 @@ function extractCssValue(line, prop) {
 		.trim();
 }
 
+function unicodeRange(from, to) {
+	return {from, to};
+}
+
 // Idiotically simple CSS parser, which just works for Google fonts
 module.exports = function parseCss(css) {
 	const lines = css.split('\n').map(e => e.trim());
@@ -50,6 +54,31 @@ module.exports = function parseCss(css) {
 		}
 		if (line.includes('font-display:')) {
 			current.fontDisplay = extractCssValue(line, 'font-display');
+			continue;
+		}
+		if (line.includes('unicode-range:')) {
+			current.unicodeRanges = extractCssValue(line, 'unicode-range')
+				.split(',')
+				.map(e => e.replace('U+', ''))
+				.map(e => e.trim())
+				// Convert everything to a range
+				.map(item => {
+					if (!item.includes('?') && !item.includes('-')) {
+						// Single character
+						return unicodeRange(item, item);
+					} else if (item.includes('-')) {
+						// Range
+						const splitted = item.split('-');
+						return unicodeRange(splitted[0], splitted[1]);
+					} else {
+						// Wildcard
+						const wildcardCount = (item.match(/\?/g) || []).length;
+						const prefix = item.split('?')[0];
+						const from = `${prefix}${'0'.repeat(wildcardCount)}`;
+						const to = `${prefix}${'9'.repeat(wildcardCount)}`;
+						return unicodeRange(from, to);
+					}
+				});
 			continue;
 		}
 		if (line.includes('src:')) {
