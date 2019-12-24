@@ -17,22 +17,16 @@ module.exports = function createCache(name, maxSize) {
 			return;
 		}
 
-		// Not making copies to preserve memory
-		const iterable = cache.entries();
 		let oldestDate = MAX_DATE;
 		let oldestItem = null;
-		while (true) {
-			const next = iterable.next();
-			if (next.done) {
-				break;
-			}
-			const key = next.value[0];
-			const value = next.value[1].last_used_at;
-			if (value < oldestDate) {
-				oldestDate = value;
+		// Not making copies to preserve memory
+		cache.forEach((val, key) => {
+			const lastUsedAt = val.last_used_at;
+			if (lastUsedAt < oldestDate) {
+				oldestDate = lastUsedAt;
 				oldestItem = key;
 			}
-		}
+		});
 
 		if (oldestItem) {
 			log('info', `Will delete ${name} key ${oldestItem} (last used at: ${oldestDate.toISOString()})`);
@@ -45,19 +39,14 @@ module.exports = function createCache(name, maxSize) {
 		log('info', `Starting cache pruning for ${name}`);
 		const threshold = new Date() - 7 * 24 * 60 * 60 * 1000;
 		// Not making copies to conserve memory
-		const iterable = cache.entries();
-		while (true) {
-			const next = iterable.next();
-			if (next.done) {
-				break;
-			}
-			const key = next.value[0];
-			const value = next.value[1].added_at;
-			if (value < threshold) {
-				log('info', `Will delete ${name} key ${key} (added at: ${value.toISOString()})`);
+		cache.forEach((val, key) => {
+			const addedAt = val.added_at;
+			if (addedAt < threshold) {
+				log('info', `Will delete ${name} key ${key} (added at: ${addedAt.toISOString()})`);
 				cache.delete(key);
 			}
-		}
+
+		});
 	}
 
 	setInterval(pruneCache, 60 * 60 * 1000);
