@@ -1,6 +1,5 @@
 const dates = require('./dates');
 
-const {ReReadable} = require("rereadable-stream");
 const fetch = require('node-fetch');
 const log = require('./log');
 const parseNumberOrDefault = require('./numberParser');
@@ -23,7 +22,7 @@ function respondWithCache(ctx, cached) {
 	// Setting the status explicitly is required as the body is just piped
 	ctx.status = 200;
 
-	ctx.body = cached.body.rewind();
+	ctx.body = cached.body;
 }
 
 const font = async function font(ctx, retryCount = 0) {
@@ -57,9 +56,9 @@ const font = async function font(ctx, retryCount = 0) {
 			'x-content-type-options' : result.headers.get('x-content-type-options'),
 		};
 
-		// Ensure we can re-read the stream at any point in time
-		const rereadable = result.body.pipe(new ReReadable());
-		respondWithCache(ctx, addToCache(cacheKey, responseHeaders, rereadable));
+		// Buffer the binary data
+		const buffer = await result.buffer();
+		respondWithCache(ctx, addToCache(cacheKey, responseHeaders, buffer));
 	} catch (e) {
 		if (retryCount < 3) {
 			log('warn', `Error occurred when fetching font data upstream. Will retry. ${e.toString()}`);
