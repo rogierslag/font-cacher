@@ -93,10 +93,10 @@ module.exports = function createCache(name, maxSize) {
 		return {
 			hits,
 			misses,
-			hitRatio : total > 0 ? (hits / total).toFixed(3) : 0,
+			hitRatio : total > 0 ? (hits / total) : 0,
 			size,
 			maxSize,
-			usageRatio : maxSize > 0 ? (size / maxSize).toFixed(3) : 0,
+			usageRatio : maxSize > 0 ? (size / maxSize) : 0,
 			started
 		}
 	}
