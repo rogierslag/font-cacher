@@ -88,11 +88,15 @@ module.exports = function createCache(name, maxSize) {
 	}
 
 	function stats() {
+		const {size} = cache;
+		const total = hits + misses;
 		return {
 			hits,
 			misses,
-			size : cache.size,
+			hitRatio : total > 0 ? (hits / total).toFixed(3) : 0,
+			size,
 			maxSize,
+			usageRatio : maxSize > 0 ? (size / maxSize).toFixed(3) : 0,
 			started
 		}
 	}
