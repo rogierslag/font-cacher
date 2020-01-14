@@ -1,3 +1,4 @@
 module.exports = function log(level, message) {
-	console.log(JSON.stringify({level, message, datetime : (new Date()).toISOString()}));
+	const datetime = new Date().toISOString();
+	console.log(JSON.stringify({level, datetime, message}));
 };
