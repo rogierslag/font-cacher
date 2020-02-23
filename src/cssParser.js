@@ -1,5 +1,3 @@
-const url = require('url');
-
 function newCssItem() {
 	return {
 		key : null,
