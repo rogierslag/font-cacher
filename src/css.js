@@ -58,7 +58,10 @@ function safeParsedCss(css) {
 }
 
 const css = async function css(ctx, retryCount = 0) {
-	const cacheKey = key(ctx.querystring, ctx.req.headers['user-agent']);
+	const userAgentString = ctx.header['user-agent'];
+	const queryString = ctx.querystring;
+
+	const cacheKey = key(queryString, userAgentString);
 
 	const cached = getFromCache(cacheKey);
 	if (cached) {
@@ -68,12 +71,12 @@ const css = async function css(ctx, retryCount = 0) {
 	}
 
 	const headers = {
-		'user-agent' : ctx.header['user-agent'],
+		'user-agent' : userAgentString,
 		'accept' : ctx.header['accept'],
 		'accept-language' : ctx.header['accept-language'],
 		'referer' : ctx.header['referer'],
 	};
-	const forwardUrl = `https://fonts.googleapis.com/css?${ctx.querystring}`;
+	const forwardUrl = `https://fonts.googleapis.com/css?${queryString}`;
 	try {
 		const result = await fetch(forwardUrl, {
 			method : 'get',
@@ -82,9 +85,9 @@ const css = async function css(ctx, retryCount = 0) {
 		const originalCss = await result.text();
 
 		// Redirect the actual font files to ourselves
-		const bodyToCache = originalCss.replace(/https:\/\/fonts\.gstatic\.com\/s/g, PUBLIC_URL);
+		const replacedCss = originalCss.replace(/https:\/\/fonts\.gstatic\.com\/s/g, PUBLIC_URL);
 
-		const parsedCss = safeParsedCss(bodyToCache);
+		const parsedCss = safeParsedCss(replacedCss);
 		// Get the subset to push, but always add latin. `null` is for IE support
 		const requestedSubsets = [null, ctx.query.subset, 'latin'];
 		const links = parsedCss.filter(i => requestedSubsets.includes(i.key))
@@ -112,7 +115,10 @@ const css = async function css(ctx, retryCount = 0) {
 			headersToCache['Last-Modified'] = result.headers.get('last-modified');
 		}
 
-		respondWithCache(ctx, addToCache(cacheKey, headersToCache, bodyToCache));
+		// Add debugging params as comment
+		const cssToCache = `/*\nRequested query:\t${queryString}\nRequesting User-Agent:\t${userAgentString}\n*/\n\n${replacedCss}`;
+
+		respondWithCache(ctx, addToCache(cacheKey, headersToCache, cssToCache));
 	} catch (e) {
 		if (retryCount < 3) {
 			log('warn', `Error occurred when fetching CSS data upstream. Will retry. ${e.toString()}`);
