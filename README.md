@@ -43,3 +43,7 @@ You can request instance statistic from the following URLs:
 1. Visit your application: the fonts will have gone through the proxy.
 
 To further improve performance, you can set the following flag in [nginx](https://www.nginx.com/blog/nginx-1-13-9-http2-server-push/) to automatically push the resources as well `http2_push_preload on;`
+
+## Blog
+
+I blogged about this service on https://medium.com/@Rogier.Slag/nailing-ux-with-fast-font-delivery-446693db7a59?sk=d71b6138294620628826f04b141041ac
