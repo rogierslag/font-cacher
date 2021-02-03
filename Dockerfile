@@ -1,20 +1,21 @@
-FROM node:12.13
+FROM node:12.13-alpine
 MAINTAINER Rogier Slag <rogier.slag@gmail.com>
 
 EXPOSE 3000
 
-RUN groupadd -r luser && useradd -r -g luser luser
-RUN mkdir -p /home/luser/.pm2/
-RUN chown -R luser.luser /home/luser
+ENV YARN_CACHE_FOLDER=/dev/shm/yarn_cache
+RUN addgroup -S usert && adduser -S usert -G usert
+RUN mkdir -p /home/usert/.pm2/
+RUN chown -R usert.usert /home/usert
 RUN yarn global add pm2
 
 RUN mkdir /service
 
 ADD yarn.lock /service/
 ADD package.json /service/
-RUN cd /service && yarn install --pure-lockfile
+RUN cd /service && yarn install --frozen-lockfile
 ADD src/*.js /service/
 
-USER luser
+USER usert
 WORKDIR /service
 CMD ["/usr/local/bin/pm2-docker", "start", "index.js", "--instances=1"]
