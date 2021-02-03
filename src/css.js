@@ -115,8 +115,10 @@ const css = async function css(ctx, retryCount = 0) {
 			headersToCache['Last-Modified'] = result.headers.get('last-modified');
 		}
 
+		const typefaceList = Array.from(new Set(parsedCss.map(({fontFamily, fontWeight, fontStyle}) => `\t\t${fontFamily} ${fontWeight}${fontStyle !== 'normal' ? ` ${fontStyle}` : ''}`))).sort().join('\n');
+
 		// Add debugging params as comment
-		const cssToCache = `/*\nRequested query:\t${queryString}\nRequesting User-Agent:\t${userAgentString}\n*/\n\n${replacedCss}`;
+		const cssToCache = `/*\nRequested query:\t${queryString}\nRequesting User-Agent:\t${userAgentString}\nProvided fonts and typefaces in response:\n${typefaceList}\n*/\n\n${replacedCss}`;
 
 		respondWithCache(ctx, addToCache(cacheKey, headersToCache, cssToCache));
 	} catch (e) {

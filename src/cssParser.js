@@ -25,7 +25,7 @@ module.exports = function parseCss(css) {
 	const lines = css.split('\n').map(e => e.trim());
 	const result = [];
 	let current = newCssItem();
-	for (i = 0; i < lines.length; i++) {
+	for (let i = 0; i < lines.length; i++) {
 		const line = lines[i];
 		if (line.startsWith('/* ') && line.endsWith('*/')) {
 			// We just found the key!
