@@ -4,6 +4,7 @@ MAINTAINER Rogier Slag <rogier.slag@gmail.com>
 EXPOSE 3000
 
 ENV YARN_CACHE_FOLDER=/dev/shm/yarn_cache
+ENV NODE_ENV=production
 RUN addgroup -S usert && adduser -S usert -G usert
 RUN mkdir -p /home/usert/.pm2/
 RUN chown -R usert.usert /home/usert
