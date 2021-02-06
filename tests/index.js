@@ -1,1 +1,1 @@
-require('./cssParser');
+require("./cssParser");
