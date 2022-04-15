@@ -5,6 +5,7 @@ const uuid = require("uuid");
 
 const css = require("./css");
 const font = require("./font");
+const fontKit = require("./fontKit");
 const log = require("./log");
 
 let shuttingDown = false;
@@ -33,9 +34,13 @@ server.use(
 );
 server.use(router.get("/css", (ctx) => css(ctx)));
 server.use(router.get("/font/*", (ctx) => font(ctx)));
+server.use(router.get("/fontKit/*", (ctx) => fontKit(ctx)));
 server.use(router.get("/_stats/css", (ctx) => css.stats(ctx, consulServiceId)));
 server.use(
   router.get("/_stats/font", (ctx) => font.stats(ctx, consulServiceId))
+);
+server.use(
+  router.get("/_stats/fontKit", (ctx) => fontKit.stats(ctx, consulServiceId))
 );
 server.use(
   router.get("/_stats/memory", (ctx) => {

@@ -6,7 +6,12 @@ const log = require("./log");
 const parseNumberOrDefault = require("./numberParser");
 const parseCss = require("./cssParser");
 
-const PUBLIC_URL = `${process.env.PUBLIC_URL || "http://localhost:3000"}/font`;
+const PUBLIC_URL_FONT = `${
+  process.env.PUBLIC_URL || "http://localhost:3000"
+}/font`;
+const PUBLIC_URL_FONT_KIT = `${
+  process.env.PUBLIC_URL || "http://localhost:3000"
+}/fontKit`;
 const MAX_CSS_ENTRIES = parseNumberOrDefault(process.env.MAX_CSS_ENTRIES, 500);
 
 const { getFromCache, addToCache, stats } = require("./cache")(
@@ -94,10 +99,17 @@ const css = async function css(ctx, retryCount = 0) {
     const originalCss = await result.text();
 
     // Redirect the actual font files to ourselves
-    const replacedCss = originalCss.replace(
-      /https:\/\/fonts\.gstatic\.com\/s/g,
-      PUBLIC_URL
-    );
+    const replacedCss = originalCss
+      .replace(
+        // Normal font files
+        /https:\/\/fonts\.gstatic\.com\/s/g,
+        PUBLIC_URL_FONT
+      )
+      .replace(
+        // ?text= font sets (same caching mechanism can be used)
+        /https:\/\/fonts\.gstatic\.com\/l/g,
+        PUBLIC_URL_FONT_KIT
+      );
 
     const parsedCss = safeParsedCss(replacedCss);
     // Get the subset to push, but always add latin. `null` is for IE support
@@ -106,7 +118,8 @@ const css = async function css(ctx, retryCount = 0) {
       .filter((i) => requestedSubsets.includes(i.key))
       .map((i) => i.remoteSrc)
       .filter((i) => i)
-      .map((url) => new URL(url).pathname)
+      .map((url) => new URL(url))
+      .map((url) => `${url.pathname}${url.search}`)
       // crossorigin required as Chrome doesnt preload it otherwise
       .map((path) => `<${path}>; as=font; rel=preload; crossorigin=anonymous`)
       .join(", ");

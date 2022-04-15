@@ -8,7 +8,7 @@ const MAX_FONT_ENTRIES = parseNumberOrDefault(
   250
 );
 const { getFromCache, addToCache, stats } = require("./cache")(
-  "font",
+  "fontKit",
   MAX_FONT_ENTRIES
 );
 
@@ -16,7 +16,7 @@ const FONT_CACHE_CONTROL = process.env.FONT_CACHE_CONTROL || null;
 if (FONT_CACHE_CONTROL) {
   log(
     "info",
-    `Using a cache-control response for fonts of '${FONT_CACHE_CONTROL}'`
+    `Using a cache-control response for font kit of '${FONT_CACHE_CONTROL}'`
   );
 }
 
@@ -24,9 +24,9 @@ if (process.env.LOG_STATS) {
   setInterval(() => console.log("font", stats()), 6 * 60 * 60 * 1000);
 }
 
-const font = async function font(ctx, retryCount = 0) {
-  // Note this does not include the search params
-  const cacheKey = ctx.path.replace("/font/", "");
+const fontKit = async function font(ctx, retryCount = 0) {
+  // Note this includes the search params
+  const cacheKey = `${ctx.path.replace("/fontKit/", "")}${ctx.search}`;
 
   const cached = getFromCache(cacheKey);
   if (cached) {
@@ -39,7 +39,7 @@ const font = async function font(ctx, retryCount = 0) {
     "user-agent": ctx.header["user-agent"],
     accept: ctx.header["accept"],
   };
-  const forwardUrl = `https://fonts.gstatic.com/s/${cacheKey}`;
+  const forwardUrl = `https://fonts.gstatic.com/l/${cacheKey}`;
   try {
     const result = await fetch(forwardUrl, {
       method: "get",
@@ -69,7 +69,7 @@ const font = async function font(ctx, retryCount = 0) {
         `Error occurred when fetching font data upstream. Will retry. ${e.toString()}`
       );
       await new Promise((resolve) => setTimeout(resolve, 10));
-      await font(ctx, retryCount + 1);
+      await fontKit(ctx, retryCount + 1);
       return;
     }
     log(
@@ -80,8 +80,8 @@ const font = async function font(ctx, retryCount = 0) {
     ctx.body = "Upstream service failure";
   }
 };
-font.stats = function statistics(ctx, serviceId) {
+fontKit.stats = function statistics(ctx, serviceId) {
   ctx.body = Object.assign({}, stats(), { serviceId });
 };
 
-module.exports = font;
+module.exports = fontKit;
