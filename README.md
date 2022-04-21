@@ -22,9 +22,9 @@ The system is configured using environment variables.
 | Key | Description |
 |---|---|
 | `MAX_CSS_ENTRIES` | The maximum number of CSS entries to cache. _Default 10000._ |
-| `MAX_FONT_ENTRIES` | The maximum number of font entries to cache. _Default 1000._ |
+| `MAX_FONT_ENTRIES` | The maximum number of font entries to cache. _Default 1000._ The same number is used for font kits |
 | `CSS_CACHE_CONTROL` | The value of the `Cache-control` header for all CSS responses. If not set, the upstream value will be used. |
-| `FONT_CACHE_CONTROL` | The value of the `Cache-control` header for all font responses. If not set, the upstream value will be used. |
+| `FONT_CACHE_CONTROL` | The value of the `Cache-control` header for all font responses. If not set, the upstream value will be used. The same value is used for font kits |
 | `PUBLIC_URL` | Public URL of access the fonts. _Default `http://localhost:3000/font/`._ |
 
 In the URL you can specify the exact same parameters as Google Fonts.
@@ -33,6 +33,7 @@ One additional feature is available: by specifying a query param `noPush` the li
 You can request instance statistic from the following URLs:
 - `_stats/css`: Cache statistics for the CSS cache
 - `_stats/font`: Cache statistics for the font cache
+- `_stats/fontKit`: Cache statistics for the font cache
 - `_stats/memory`: Statistics about the instance memory usage
 
 ## Quick start
