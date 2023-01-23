@@ -83,6 +83,7 @@ const onReady = () => {
           registeredToConsul = true;
         } else {
           log("error", `Could not register with consul. Error was ${err}.`);
+          process.exit(1);
         }
       }
     );
