@@ -9,18 +9,13 @@ const fontKit = require("./fontKit");
 const log = require("./log");
 
 let shuttingDown = false;
-let registeredToConsul = false;
 let serverInstance;
 
 const server = new Koa();
 
 const consulServiceId = uuid.v4();
-const consulHost = process.env.CONSUL_HOST
-  ? process.env.CONSUL_HOST
-  : "localhost";
-const serviceHost = process.env.SERVICE_HOST
-  ? process.env.SERVICE_HOST
-  : "localdev.internal.magnet.me";
+const consulHost = process.env.CONSUL_HOST;
+const serviceHost = process.env.SERVICE_HOST;
 const port = Number(process.env.PORT) ? Number(process.env.PORT) : 3000;
 
 const ONE_MEGABYTE = 1024 * 1024;
@@ -80,7 +75,6 @@ const onReady = () => {
             "info",
             `Successfully registered with consul as '${consulServiceId}'`
           );
-          registeredToConsul = true;
         } else {
           log("error", `Could not register with consul. Error was ${err}.`);
           process.exit(1);
@@ -115,7 +109,7 @@ const shutdown = () => {
   shuttingDown = true;
   log("info", "Starting the shutdown process");
 
-  if (registeredToConsul) {
+  if (consulHost) {
     // IntelliJ does not allow the shutdown sequence to propagate, so deregistration does not fire
     consul({ host: consulHost }).agent.service.deregister(
       {
