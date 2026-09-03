@@ -1,4 +1,3 @@
-const fetch = require("node-fetch");
 const log = require("./log");
 const respondWithCache = require("./respondWithCache");
 const parseNumberOrDefault = require("./numberParser");
@@ -60,7 +59,7 @@ const font = async function font(ctx, retryCount = 0) {
     };
 
     // Buffer the binary data
-    const buffer = await result.buffer();
+    const buffer = Buffer.from(await result.arrayBuffer());
     respondWithCache(ctx, addToCache(cacheKey, responseHeaders, buffer));
   } catch (e) {
     if (retryCount < 3) {
