@@ -1,6 +1,5 @@
 const dates = require("./dates");
 
-const fetch = require("node-fetch");
 const parser = require("ua-parser-js");
 const log = require("./log");
 const parseNumberOrDefault = require("./numberParser");

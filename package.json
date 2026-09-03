@@ -2,6 +2,9 @@
   "name": "font-cacher",
   "version": "2.0.0",
   "main": "src/index.js",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "prettify": "yarn prettier --write '**.js'",
     "test": "node tests/index.js"
@@ -9,14 +12,17 @@
   "author": "Rogier Slag <rogier.slag@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "consul": "^0.36.0",
-    "koa": "^2.11.0",
-    "koa-route": "^3.2.0",
-    "node-fetch": "^2.6.7",
-    "ua-parser-js": "^0.7.33",
-    "uuid": "^3.3.3"
+    "consul": "^2.0.1",
+    "koa": "^3.2.1",
+    "koa-route": "^4.0.1",
+    "ua-parser-js": "^2.0.10",
+    "uuid": "^14.0.2"
   },
   "devDependencies": {
-    "prettier": "^2.2.1"
+    "prettier": "^3.9.6"
+  },
+  "resolutions": {
+    "consul/uuid": "^11.1.1",
+    "koa-route/debug": "^4.4.3"
   }
 }
