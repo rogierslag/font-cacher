@@ -48,3 +48,9 @@ To further improve performance, you can set the following flag in [nginx](https:
 ## Blog
 
 I blogged about this service on https://medium.com/@Rogier.Slag/nailing-ux-with-fast-font-delivery-446693db7a59?sk=d71b6138294620628826f04b141041ac
+
+## CI
+
+GitHub Actions runs the CSS parser tests and Consul registration/shutdown regression tests on pull requests and pushes to `master`, using the Node version in `.nvmrc`. It then builds the production Docker image without publishing it. Consul tests use the real client against a local HTTP stub; they do not contact production.
+
+Run `yarn install --frozen-lockfile` and `yarn test` locally with the Node version in `.nvmrc`. The Consul tests require local ports 8500 and 19117 to be free.
