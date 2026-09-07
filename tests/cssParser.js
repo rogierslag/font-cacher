@@ -1,78 +1,79 @@
+const assert = require("node:assert/strict");
 const fs = require("fs");
 const parseCss = require("../src/cssParser");
 
 function unicodeSimpleChromeWithSwapAndExtendedSubset() {
   const simpleChromeWithSwapAndExtendedSubsetCss = fs
     .readFileSync(
-      `${__dirname}/cssResources/simpleChromeWithSwapAndExtendedSubset.css`
+      `${__dirname}/cssResources/simpleChromeWithSwapAndExtendedSubset.css`,
     )
     .toString();
   const parsed = parseCss(simpleChromeWithSwapAndExtendedSubsetCss);
-  console.assert(
+  assert.ok(
     parsed.length === 1,
     "Length was not correct, got %d for %s",
     parsed.length,
-    "chromeWithSwapAndExtendedSubset"
+    "chromeWithSwapAndExtendedSubset",
   );
   const foundResource = parsed.find(
     (e) =>
       e.key === "latin" &&
       e.fontStyle === "italic" &&
       e.fontDisplay === "swap" &&
-      e.fontWeight === "400"
+      e.fontWeight === "400",
   );
 
   const unicodeSimple = foundResource.unicodeRanges.find(
-    (e) => e.from === "0131"
+    (e) => e.from === "0131",
   );
   const unicodeWildcard = foundResource.unicodeRanges.find(
-    (e) => e.from === "0010"
+    (e) => e.from === "0010",
   );
   const unicodeRange = foundResource.unicodeRanges.find(
-    (e) => e.from === "0152"
+    (e) => e.from === "0152",
   );
-  console.assert(
+  assert.ok(
     Object.keys(unicodeSimple).length === 2 && unicodeSimple.to === "0131",
     "Did not get expected simple unicode range for %s",
-    "simpleChromeWithSwapAndExtendedSubset"
+    "simpleChromeWithSwapAndExtendedSubset",
   );
-  console.assert(
+  assert.ok(
     Object.keys(unicodeWildcard).length === 2 && unicodeWildcard.to === "0019",
     "Did not get expected wildcard unicode range for %s",
-    "simpleChromeWithSwapAndExtendedSubset"
+    "simpleChromeWithSwapAndExtendedSubset",
   );
-  console.assert(
+  assert.ok(
     Object.keys(unicodeRange).length === 2 && unicodeRange.to === "0153",
     "Did not get expected unicode range for %s",
-    "simpleChromeWithSwapAndExtendedSubset"
+    "simpleChromeWithSwapAndExtendedSubset",
   );
 }
 
 function chromeWithSwapAndExtendedSubset() {
   const chromeWithSwapAndExtendedSubsetCss = fs
     .readFileSync(
-      `${__dirname}/cssResources/chromeWithSwapAndExtendedSubset.css`
+      `${__dirname}/cssResources/chromeWithSwapAndExtendedSubset.css`,
     )
     .toString();
   const parsed = parseCss(chromeWithSwapAndExtendedSubsetCss);
-  console.assert(
+  assert.ok(
     parsed.length === 35,
     "Length was not correct, got %d for %s",
     parsed.length,
-    "chromeWithSwapAndExtendedSubset"
+    "chromeWithSwapAndExtendedSubset",
   );
   const foundSource = parsed.find(
     (e) =>
       e.key === "latin" &&
       e.fontStyle === "italic" &&
       e.fontDisplay === "swap" &&
-      e.fontWeight === "400"
+      e.fontWeight === "400",
   ).remoteSrc;
-  console.assert(
+  assert.ok(
     foundSource ===
       "https://fonts.gstatic.com/s/sourcesanspro/v13/6xK1dSBYKcSV-LCoeQqfX1RYOo3qPZ7nsDJB9cme.woff2",
     "Did not get expected font file for %s",
-    "chromeWithSwapAndExtendedSubset"
+    "chromeWithSwapAndExtendedSubset",
   );
 }
 
@@ -81,24 +82,24 @@ function chromeWithSwapAndSubset() {
     .readFileSync(`${__dirname}/cssResources/chromeWithSwapAndSubset.css`)
     .toString();
   const parsed = parseCss(chromeWithSwapAndSubsetCss);
-  console.assert(
+  assert.ok(
     parsed.length === 35,
     "Length was not correct, got %d for %s",
     parsed.length,
-    "chromeWithSwapAndSubset"
+    "chromeWithSwapAndSubset",
   );
   const foundSource = parsed.find(
     (e) =>
       e.key === "latin" &&
       e.fontStyle === "italic" &&
       e.fontDisplay === "swap" &&
-      e.fontWeight === "400"
+      e.fontWeight === "400",
   ).remoteSrc;
-  console.assert(
+  assert.ok(
     foundSource ===
       "https://fonts.gstatic.com/s/sourcesanspro/v13/6xK1dSBYKcSV-LCoeQqfX1RYOo3qPZ7nsDJB9cme.woff2",
     "Did not get expected font file for %s",
-    "chromeWithSwapAndSubset"
+    "chromeWithSwapAndSubset",
   );
 }
 
@@ -107,20 +108,20 @@ function simpleMsie11() {
     .readFileSync(`${__dirname}/cssResources/simpleMsie11.css`)
     .toString();
   const parsed = parseCss(simpleMsie11Css);
-  console.assert(
+  assert.ok(
     parsed.length === 1,
     "Length was not correct, got %d for %s",
     parsed.length,
-    "simpleMsie11"
+    "simpleMsie11",
   );
   const foundSource = parsed.find(
-    (e) => e.key === null && e.fontStyle === "normal" && e.fontWeight === "300"
+    (e) => e.key === null && e.fontStyle === "normal" && e.fontWeight === "300",
   ).remoteSrc;
-  console.assert(
+  assert.ok(
     foundSource ===
       "https://fonts.gstatic.com/s/sourcesanspro/v13/6xKydSBYKcSV-LCoeQqfX1RYOo3ik4zwlxdo.woff",
     "Did not get expected font file for %s",
-    "simpleMsie11"
+    "simpleMsie11",
   );
 }
 
@@ -129,20 +130,20 @@ function msie11() {
     .readFileSync(`${__dirname}/cssResources/msie11.css`)
     .toString();
   const parsed = parseCss(simpleMsie11Css);
-  console.assert(
+  assert.ok(
     parsed.length === 5,
     "Length was not correct, got %d for %s",
     parsed.length,
-    "msie11"
+    "msie11",
   );
   const foundSource = parsed.find(
-    (e) => e.key === null && e.fontStyle === "normal" && e.fontWeight === "700"
+    (e) => e.key === null && e.fontStyle === "normal" && e.fontWeight === "700",
   ).remoteSrc;
-  console.assert(
+  assert.ok(
     foundSource ===
       "https://fonts.gstatic.com/s/sourcesanspro/v13/6xKydSBYKcSV-LCoeQqfX1RYOo3ig4vwmRdo.woff",
     "Did not get expected font file for %s",
-    "msie11"
+    "msie11",
   );
 }
 
@@ -151,32 +152,32 @@ function scrambled() {
     .readFileSync(`${__dirname}/cssResources/scrambledFile.css`)
     .toString();
   const parsed = parseCss(simpleMsie11Css);
-  console.assert(
+  assert.ok(
     parsed.length === 1,
     "Length was not correct, got %d for %s",
     parsed.length,
-    "crambled"
+    "crambled",
   );
-  console.assert(
+  assert.ok(
     parsed[0].key === "key is here",
-    "Key was not correct for crambled"
+    "Key was not correct for crambled",
   );
-  console.assert(
+  assert.ok(
     parsed[0].fontFamily === "Source Sans Pro",
-    "fontFamily was not correct for crambled"
+    "fontFamily was not correct for crambled",
   );
-  console.assert(
+  assert.ok(
     parsed[0].fontStyle === "normal",
-    "fontStyle was not correct for crambled"
+    "fontStyle was not correct for crambled",
   );
-  console.assert(
+  assert.ok(
     parsed[0].fontWeight === "300",
-    "fontWeight was not correct for crambled"
+    "fontWeight was not correct for crambled",
   );
-  console.assert(
+  assert.ok(
     parsed[0].remoteSrc ===
       "https://fonts.gstatic.com/s/sourcesanspro/v13/6xKydSBYKcSV-LCoeQqfX1RYOo3ik4zwlxdo.woff",
-    "remoteSrc was not correct for crambled"
+    "remoteSrc was not correct for crambled",
   );
 }
 
@@ -187,4 +188,4 @@ simpleMsie11();
 msie11();
 scrambled();
 
-console.log("If no errors appeared above this line, all is well!");
+console.log("CSS parser tests passed");

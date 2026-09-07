@@ -1,6 +1,6 @@
 const Koa = require("koa");
 const router = require("koa-route");
-const consul = require("consul");
+const Consul = require("consul");
 const uuid = require("uuid");
 
 const css = require("./css");
@@ -15,6 +15,7 @@ const server = new Koa();
 
 const consulServiceId = uuid.v4();
 const consulHost = process.env.CONSUL_HOST;
+const consulClient = consulHost ? new Consul({ host: consulHost }) : null;
 const serviceHost = process.env.SERVICE_HOST;
 const port = Number(process.env.PORT) ? Number(process.env.PORT) : 3000;
 
@@ -24,18 +25,18 @@ server.use(
   router.get(
     "/_health",
     (ctx) =>
-      (ctx.body = { state: "HEALTHY", message: "I'm styley and I know it" })
-  )
+      (ctx.body = { state: "HEALTHY", message: "I'm styley and I know it" }),
+  ),
 );
 server.use(router.get("/css", (ctx) => css(ctx)));
 server.use(router.get("/font/(.*)", (ctx) => font(ctx)));
 server.use(router.get("/fontKit/(.*)", (ctx) => fontKit(ctx)));
 server.use(router.get("/_stats/css", (ctx) => css.stats(ctx, consulServiceId)));
 server.use(
-  router.get("/_stats/font", (ctx) => font.stats(ctx, consulServiceId))
+  router.get("/_stats/font", (ctx) => font.stats(ctx, consulServiceId)),
 );
 server.use(
-  router.get("/_stats/fontKit", (ctx) => fontKit.stats(ctx, consulServiceId))
+  router.get("/_stats/fontKit", (ctx) => fontKit.stats(ctx, consulServiceId)),
 );
 server.use(
   router.get("/_stats/memory", (ctx) => {
@@ -52,14 +53,13 @@ server.use(
       bytes: memory,
       megabytes: mbMemory,
     };
-  })
+  }),
 );
 
-const onReady = () => {
-  // Register in Consul if required
-  if (consulHost) {
-    consul({ host: consulHost }).agent.service.register(
-      {
+const onReady = async () => {
+  if (consulClient) {
+    try {
+      await consulClient.agent.service.register({
         name: "font-cacher",
         id: consulServiceId,
         address: serviceHost,
@@ -68,19 +68,15 @@ const onReady = () => {
           http: `http://${serviceHost}:${port}/_health`,
           interval: "10s",
         },
-      },
-      (err) => {
-        if (!err) {
-          log(
-            "info",
-            `Successfully registered with consul as '${consulServiceId}'`
-          );
-        } else {
-          log("error", `Could not register with consul. Error was ${err}.`);
-          process.exit(1);
-        }
-      }
-    );
+      });
+      log(
+        "info",
+        `Successfully registered with consul as '${consulServiceId}'`,
+      );
+    } catch (err) {
+      log("error", `Could not register with consul. Error was ${err}.`);
+      process.exit(1);
+    }
   }
 
   log("info", "Server is ready");
@@ -94,14 +90,14 @@ const closeServer = () => {
   const timeout = setTimeout(() => {
     log(
       "error",
-      "Could not shutdown the server within 5 seconds. Force closing it!"
+      "Could not shutdown the server within 5 seconds. Force closing it!",
     );
     process.exit();
   }, 5 * 1000);
   timeout.unref();
 };
 
-const shutdown = () => {
+const shutdown = async () => {
   if (shuttingDown) {
     log("info", "Already shutting down");
     return;
@@ -109,27 +105,18 @@ const shutdown = () => {
   shuttingDown = true;
   log("info", "Starting the shutdown process");
 
-  if (consulHost) {
-    // IntelliJ does not allow the shutdown sequence to propagate, so deregistration does not fire
-    consul({ host: consulHost }).agent.service.deregister(
-      {
-        id: consulServiceId,
-      },
-      (err) => {
-        if (!err) {
-          log(
-            "info",
-            `Successfully deregistered from consul as '${consulServiceId}'`
-          );
-        } else {
-          log("error", `Could not deregister with consul. Error was ${err}.`);
-        }
-        closeServer();
-      }
-    );
-  } else {
-    closeServer();
+  if (consulClient) {
+    try {
+      await consulClient.agent.service.deregister({ id: consulServiceId });
+      log(
+        "info",
+        `Successfully deregistered from consul as '${consulServiceId}'`,
+      );
+    } catch (err) {
+      log("error", `Could not deregister with consul. Error was ${err}.`);
+    }
   }
+  closeServer();
 };
 
 function handleError(errorType, withShutdown = false) {
