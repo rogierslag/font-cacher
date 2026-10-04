@@ -4,18 +4,18 @@ const parseNumberOrDefault = require("./numberParser");
 
 const MAX_FONT_ENTRIES = parseNumberOrDefault(
   process.env.MAX_FONT_ENTRIES,
-  250
+  250,
 );
 const { getFromCache, addToCache, stats } = require("./cache")(
   "fontKit",
-  MAX_FONT_ENTRIES
+  MAX_FONT_ENTRIES,
 );
 
 const FONT_CACHE_CONTROL = process.env.FONT_CACHE_CONTROL || null;
 if (FONT_CACHE_CONTROL) {
   log(
     "info",
-    `Using a cache-control response for font kit of '${FONT_CACHE_CONTROL}'`
+    `Using a cache-control response for font kit of '${FONT_CACHE_CONTROL}'`,
   );
 }
 
@@ -47,7 +47,7 @@ const fontKit = async function font(ctx, retryCount = 0) {
 
     const responseHeaders = {
       "Access-Control-Allow-Origin": result.headers.get(
-        "Access-Control-Allow-Origin"
+        "Access-Control-Allow-Origin",
       ),
       "Content-Type": result.headers.get("content-type"),
       "Cache-Control":
@@ -65,7 +65,7 @@ const fontKit = async function font(ctx, retryCount = 0) {
     if (retryCount < 3) {
       log(
         "warn",
-        `Error occurred when fetching font data upstream. Will retry. ${e.toString()}`
+        `Error occurred when fetching font data upstream. Will retry. ${e.toString()}`,
       );
       await new Promise((resolve) => setTimeout(resolve, 10));
       await fontKit(ctx, retryCount + 1);
@@ -73,7 +73,7 @@ const fontKit = async function font(ctx, retryCount = 0) {
     }
     log(
       "error",
-      `Error occurred when fetching font data upstream: ${e.toString()}`
+      `Error occurred when fetching font data upstream: ${e.toString()}`,
     );
     ctx.status = 503;
     ctx.body = "Upstream service failure";

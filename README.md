@@ -51,6 +51,10 @@ I blogged about this service on https://medium.com/@Rogier.Slag/nailing-ux-with-
 
 ## CI
 
-GitHub Actions runs the CSS parser tests and Consul registration/shutdown regression tests on pull requests and pushes to `master`, using the Node version in `.nvmrc`. It then builds the production Docker image without publishing it. Consul tests use the real client against a local HTTP stub; they do not contact production.
+GitHub Actions runs separate formatting, JavaScript syntax, test, and Docker checks on pull requests and pushes to `master`. The checks can also be started manually. Node checks use the version in `.nvmrc`, install from the frozen Yarn lockfile, and cancel superseded runs on the same branch.
 
-Run `yarn install --frozen-lockfile` and `yarn test` locally with the Node version in `.nvmrc`. The Consul tests require local ports 8500 and 19117 to be free.
+Tests cover CSS parsing and Consul registration/shutdown. Consul tests use the real client against a local HTTP stub; they do not contact production. The Docker check builds the production image and starts a temporary container to verify health and statistics endpoints without contacting Google Fonts or Consul. It does not publish an image.
+
+Dependency review rejects pull requests that introduce dependencies with known moderate, high, or critical vulnerabilities. Dependabot proposes weekly npm, Docker, and GitHub Actions updates; minor and patch npm updates are grouped. Updates require review and are not merged automatically. CodeQL scanning and Dependabot security updates are already enabled in the repository settings.
+
+Run `yarn install --frozen-lockfile` and `yarn run check` locally with the Node version in `.nvmrc`. The Consul tests require local ports 8500 and 19117 to be free. To verify the container locally, run `docker build --pull --tag font-cacher:ci .` followed by `bash scripts/docker-smoke.sh font-cacher:ci`.

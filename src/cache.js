@@ -16,8 +16,8 @@ module.exports = function createCache(name, maxSize) {
       log(
         "info",
         `No need for ${name} cache cleaning, as it is only used for ${Math.round(
-          cacheUsage * 100
-        )}%`
+          cacheUsage * 100,
+        )}%`,
       );
       return;
     }
@@ -36,7 +36,7 @@ module.exports = function createCache(name, maxSize) {
     if (oldestItem) {
       log(
         "info",
-        `Will delete ${name} key ${oldestItem} (last used at: ${oldestDate.toISOString()})`
+        `Will delete ${name} key ${oldestItem} (last used at: ${oldestDate.toISOString()})`,
       );
       cache.delete(oldestItem);
     }
@@ -52,7 +52,7 @@ module.exports = function createCache(name, maxSize) {
       if (addedAt < threshold) {
         log(
           "info",
-          `Will delete ${name} key ${key} (added at: ${addedAt.toISOString()})`
+          `Will delete ${name} key ${key} (added at: ${addedAt.toISOString()})`,
         );
         cache.delete(key);
       }

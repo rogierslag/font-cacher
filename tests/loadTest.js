@@ -1,4 +1,3 @@
-
 const FONTS = [
   "Roboto",
   "Heebo",
@@ -52,7 +51,7 @@ async function getNextRandomItem() {
 
   const result = await fetch(
     `http://localhost:3000/css?family=${family}`,
-    opts
+    opts,
   ).then((response) => response.text());
 
   const fontFiles = result
