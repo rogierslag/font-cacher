@@ -1,7 +1,7 @@
 function parseNumberOrDefault(
   toParse,
   defaultValue,
-  shouldAllowOnlyPositive = true
+  shouldAllowOnlyPositive = true,
 ) {
   if (toParse === null || toParse === undefined || toParse === "") {
     return defaultValue;

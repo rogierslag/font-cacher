@@ -15,14 +15,14 @@ const MAX_CSS_ENTRIES = parseNumberOrDefault(process.env.MAX_CSS_ENTRIES, 500);
 
 const { getFromCache, addToCache, stats } = require("./cache")(
   "css",
-  MAX_CSS_ENTRIES
+  MAX_CSS_ENTRIES,
 );
 
 const CSS_CACHE_CONTROL = process.env.CSS_CACHE_CONTROL || null;
 if (CSS_CACHE_CONTROL) {
   log(
     "info",
-    `Using a cache-control response for CSS of '${CSS_CACHE_CONTROL}'`
+    `Using a cache-control response for CSS of '${CSS_CACHE_CONTROL}'`,
   );
 }
 
@@ -55,7 +55,7 @@ function key(querystring, userAgent) {
   } catch (e) {
     log(
       "error",
-      `Could not determine cache key for q=${querystring}; ua=${userAgent}. Got ${e}`
+      `Could not determine cache key for q=${querystring}; ua=${userAgent}. Got ${e}`,
     );
     return null;
   }
@@ -102,12 +102,12 @@ const css = async function css(ctx, retryCount = 0) {
       .replace(
         // Normal font files
         /https:\/\/fonts\.gstatic\.com\/s/g,
-        PUBLIC_URL_FONT
+        PUBLIC_URL_FONT,
       )
       .replace(
         // ?text= font sets (same caching mechanism can be used)
         /https:\/\/fonts\.gstatic\.com\/l/g,
-        PUBLIC_URL_FONT_KIT
+        PUBLIC_URL_FONT_KIT,
       );
 
     const parsedCss = safeParsedCss(replacedCss);
@@ -146,9 +146,9 @@ const css = async function css(ctx, retryCount = 0) {
           ({ fontFamily, fontWeight, fontStyle }) =>
             `\t\t${fontFamily} ${fontWeight}${
               fontStyle !== "normal" ? ` ${fontStyle}` : ""
-            }`
-        )
-      )
+            }`,
+        ),
+      ),
     )
       .sort()
       .join("\n");
@@ -161,7 +161,7 @@ const css = async function css(ctx, retryCount = 0) {
     if (retryCount < 3) {
       log(
         "warn",
-        `Error occurred when fetching CSS data upstream. Will retry. ${e.toString()}`
+        `Error occurred when fetching CSS data upstream. Will retry. ${e.toString()}`,
       );
       await new Promise((resolve) => setTimeout(resolve, 10));
       await css(ctx, retryCount + 1);
@@ -169,7 +169,7 @@ const css = async function css(ctx, retryCount = 0) {
     }
     log(
       "error",
-      `Error occurred when fetching CSS data upstream: ${e.toString()}`
+      `Error occurred when fetching CSS data upstream: ${e.toString()}`,
     );
     ctx.status = 503;
     ctx.body = "Upstream service failure";

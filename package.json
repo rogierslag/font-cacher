@@ -7,6 +7,9 @@
   },
   "scripts": {
     "prettify": "yarn prettier --write '**.js'",
+    "format:check": "prettier --check 'src/**/*.js' 'tests/**/*.js' '.github/**/*.yml' package.json",
+    "syntax:check": "for file in src/*.js tests/*.js; do node --check \"$file\" || exit; done",
+    "check": "yarn format:check && yarn syntax:check && yarn test",
     "test": "node tests/index.js"
   },
   "author": "Rogier Slag <rogier.slag@gmail.com>",
