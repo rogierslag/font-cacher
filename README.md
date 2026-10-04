@@ -28,6 +28,10 @@ The system is configured using environment variables.
 | `PUBLIC_URL` | Public URL of access the fonts. _Default `http://localhost:3000/font/`._ |
 
 In the URL you can specify the exact same parameters as Google Fonts.
+Both `/css` and `/css2` are supported and forwarded to the corresponding Google Fonts API.
+For CSS2, leave the query string unchanged, including repeated `family` parameters and variable-font axis ranges.
+For example, use `https://yourdomain.com/fonts/css2?family=Crimson+Pro:wght@200..900&display=swap` in either a stylesheet link or an `@import` rule.
+CSS2 responses are cached separately by the full user agent so Google can select the appropriate variable-font or static-font response.
 One additional feature is available: by specifying a query param `noPush` the linked font files will not be pushed to the client.
 
 You can request instance statistic from the following URLs:
@@ -40,7 +44,7 @@ You can request instance statistic from the following URLs:
 
 1. Start a Docker container `docker run -e PUBLIC_URL="https://yourdomain.com/fonts" -p 3000:3000 rogierslag/font-cacher`
 1. Configure your application or load balancer to proxy its `/fonts` directory to the started Docker container.
-1. Search for the following line `https://fonts.googleapis.com/css` and replace it with `https://yourdomain.com/fonts/css`. Leave the query string untouched.
+1. Replace `https://fonts.googleapis.com/css` with `https://yourdomain.com/fonts/css`, or `https://fonts.googleapis.com/css2` with `https://yourdomain.com/fonts/css2`. Leave the query string untouched.
 1. Visit your application: the fonts will have gone through the proxy.
 
 To further improve performance, you can set the following flag in [nginx](https://www.nginx.com/blog/nginx-1-13-9-http2-server-push/) to automatically push the resources as well `http2_push_preload on;`
