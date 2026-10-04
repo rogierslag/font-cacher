@@ -37,10 +37,14 @@ function respondWithCache(ctx, cached) {
   ctx.body = cached.body;
 }
 
-function key(querystring, userAgent) {
+function key(endpoint, querystring, userAgent) {
   if (!userAgent) {
     // We have no clue who we are talking to, so we let Google handle this
     return null;
+  }
+  if (endpoint === "/css2") {
+    // Let Google decide variable-font support for the complete user agent.
+    return `${endpoint}|${querystring}|${userAgent}`;
   }
   try {
     const ua = parser(userAgent);
@@ -51,7 +55,7 @@ function key(querystring, userAgent) {
     const isMobile = ua.device && ua.device.type === "mobile";
     const browser = ua.browser.name.toLowerCase();
     const version = ua.browser.major;
-    return `${querystring}|${browser}${isMobile ? "-mobile" : ""}|${version}`;
+    return `${endpoint}|${querystring}|${browser}${isMobile ? "-mobile" : ""}|${version}`;
   } catch (e) {
     log(
       "error",
@@ -71,10 +75,11 @@ function safeParsedCss(css) {
 }
 
 const css = async function css(ctx, retryCount = 0) {
+  ctx.vary("User-Agent");
   const userAgentString = ctx.header["user-agent"];
   const queryString = ctx.querystring;
 
-  const cacheKey = key(queryString, userAgentString);
+  const cacheKey = key(ctx.path, queryString, userAgentString);
 
   const cached = getFromCache(cacheKey);
   if (cached) {
@@ -89,13 +94,20 @@ const css = async function css(ctx, retryCount = 0) {
     "accept-language": ctx.header["accept-language"],
     referer: ctx.header["referer"],
   };
-  const forwardUrl = `https://fonts.googleapis.com/css?${queryString}`;
+  const forwardUrl = `https://fonts.googleapis.com${ctx.path}?${queryString}`;
   try {
     const result = await fetch(forwardUrl, {
       method: "get",
       headers,
     });
     const originalCss = await result.text();
+    if (!result.ok) {
+      ctx.status = result.status;
+      ctx.type = result.headers.get("content-type") || "text/plain";
+      ctx.set("Cache-Control", "no-store");
+      ctx.body = originalCss;
+      return;
+    }
 
     // Redirect the actual font files to ourselves
     const replacedCss = originalCss

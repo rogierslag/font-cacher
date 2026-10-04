@@ -29,6 +29,7 @@ server.use(
   ),
 );
 server.use(router.get("/css", (ctx) => css(ctx)));
+server.use(router.get("/css2", (ctx) => css(ctx)));
 server.use(router.get("/font/(.*)", (ctx) => font(ctx)));
 server.use(router.get("/fontKit/(.*)", (ctx) => fontKit(ctx)));
 server.use(router.get("/_stats/css", (ctx) => css.stats(ctx, consulServiceId)));
